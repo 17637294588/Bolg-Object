@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>python on HOME</title>
+    <link>/categories/python/</link>
+    <description>Recent content in python on HOME</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Sun, 08 Oct 2017 00:00:00 +0000</lastBuildDate>
+    
+	<atom:link href="/categories/python/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>celery&amp;rabbitmq</title>
+      <link>/2017/10/celeryrabbitmq/</link>
+      <pubDate>Sun, 08 Oct 2017 00:00:00 +0000</pubDate>
+      
+      <guid>/2017/10/celeryrabbitmq/</guid>
+      <description>找回密码逻辑  通过发送邮箱将回调连接发给用户邮箱，用户打开邮箱点击连接进入一个设置密码页面，设置新密码
+ 点击找回密码点击进入输入邮箱页面，用户输入邮箱号发给后台 后台拿到邮箱号将其生成 token，通过异步任务发送邮箱，邮箱内容是一条携带token的前端页面链接 用户进入邮箱，点击连接进入设置密码页 前端将 token 从连接上获取下来，将 token和密码一起发给后台 后台解析 token 如果没过期就把 token解析出来，用 token 解析出来的信息去数据库条件查询，将密码修改  说到异步，这里用的是 celery 和 Rabbitmq消息队列，将异步任务放入队列，要在 settings 里配置
+  INSTALLED_APPS = [ &#39;djcelery&#39;, ] # 配置消息队列 用的是 rabbitmq import djcelery djcelery.setup_loader() # 用户名 密码 公网ip 5672是rabbitmq服务端口号 # 这是全局配置，celery 会自动去找 rabbitmq 队列 BROKER_URL = &#39;amqp://guest:123456@39.106.64.101:5672&#39;   首先前端把邮箱号发给后台，后台经过处理将它放进消息队列  # 将前端获取的邮箱号创建 token # 导入创建 token 模块 from itsdangerous import TimedJSONWebSignatureSerializer,SignatureExpired from . import tasks # 导入异步消息队列 # 创建载荷 SECRET_KEY：是从 settings 导入进来的 ser = TimedJSONWebSignatureSerializer(SECRET_KEY,600) # 找回密码 发送邮箱 class Send_email(APIView): def post(self,request): &#39;&#39;&#39; 接受前端邮箱，创建 token 发给celery消息任务 &#39;&#39;&#39; email = request.</description>
+    </item>
+    
+    <item>
+      <title>JWT</title>
+      <link>/2017/08/jwt/</link>
+      <pubDate>Sun, 06 Aug 2017 00:00:00 +0000</pubDate>
+      
+      <guid>/2017/08/jwt/</guid>
+      <description>Josn Web Token  JWT的跨域请求流程
+ 客户端向服务器发起用户认证请求 服务端认证通过会生成token返回客户端 客户端保存token，以后每次访问服务端都带着token 服务端验证客户端的token，认证通过才给予响应  JWT的数据结构
+ 实际的jwt大概就像下面这样   JWT包含三个部分
+ Header（头部）
+ Header 部分是一个 JSON 对象，描述 JWT 的元数据，通常是下面的样子。
+ { &amp;quot;alg&amp;quot;: &amp;quot;HS256&amp;quot;, &amp;quot;typ&amp;quot;: &amp;quot;JWT&amp;quot; }   alg属性表示签名的算法（algorithm），默认是 HMAC SHA256（写成 HS256）；typ属性表示这个令牌（token）的类型（type），JWT 令牌统一写为JWT。最后，将上面的 JSON 对象使用 Base64URL 算法转成字符串。
+ Payload（载荷）
+ Payload 部分也是一个 JSON 对象，用来存放实际需要传递的数据。JWT 规定了7个官方字段
+```
+   iss (issuer)：签发人 exp (expiration time)：过期时间 sub (subject)：主题 aud (audience)：受众 nbf (Not Before)：生效时间 iat (Issued At)：签发时间 jti (JWT ID)：编号</description>
+    </item>
+    
+    <item>
+      <title>docker&amp;Fastfds</title>
+      <link>/2017/08/dockerfastfds/</link>
+      <pubDate>Sun, 06 Aug 2017 00:00:00 +0000</pubDate>
+      
+      <guid>/2017/08/dockerfastfds/</guid>
+      <description>添加docker-repo源：  yum -y install yum-utils  添加docker-repo源  sudo yum-config-manager &amp;ndash;add-repo https://download.docker.com/linux/centos/docker-ce.repo  安装免费 docker  yum install docker-ce  开启 docker  systemctl start docker  拉取fastdfs镜像  sudo docker image pull delron/fastdfs  开启fsdfs的tracker服务  docker run -dti &amp;ndash;network=host &amp;ndash;name tracker -v /var/fdfs/tracker:/var/fdfs delron/fastdfs tracker  如果想停止tracker服务，可以执行如下命令  docker container stop tracker  停止后，重新运行tracker，可以执行如下命令  docker container start tracker  删除 tracker 服务  docker rm tracker  开启storage服务，记得改IP  docker run -dti &amp;ndash;network=host &amp;ndash;name storage -e TRACKER_SERVER=39.</description>
+    </item>
+    
+  </channel>
+</rss>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Paramiko on HOME</title>
+    <link>/tags/paramiko/</link>
+    <description>Recent content in Paramiko on HOME</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Tue, 05 Feb 2019 00:00:00 +0000</lastBuildDate>
+    
+	<atom:link href="/tags/paramiko/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Paramiko</title>
+      <link>/2019/02/paramiko/</link>
+      <pubDate>Tue, 05 Feb 2019 00:00:00 +0000</pubDate>
+      
+      <guid>/2019/02/paramiko/</guid>
+      <description>Paramiko  Paramiko是SSHv2协议的Python实现，提供客户端和服务器功能
+Paramiko本身是一个围绕SSH网络概念的纯Python接口
+利用paramiko我们可以通过Python方便的进行linux操作
+paramiko包含两个核心组件：SSHClient和SFTPClient
+ SSHClient  SSHClient的作用类似于Linux的ssh命令，是对SSH会话的封装
+该类封装了传输Transport，通道Channel及SFTPClient建立的方法open_sftp，通常用于执行远程命令
+ API  引入模块  import paramiko   创建SSH客户端实例  SSHClient.connect(hostname, port=22, username=None, password=None, pkey=None, key_filename=None, timeout=None, allow_agent=True, look_for_keys=True, compress=False..)  # 参数解释 - hostname：连接的目标主机 - port=SSH_PORT：指定端口 - username=None：验证的用户名 - password=None：验证的用户密码 - pkey=None：私钥方式用于身份验证 - key_filename=None：一个文件名或文件列表，指定私钥文件 - timeout=None：可选的tcp连接超时时间 - allow_agent=True：是否允许连接到ssh代理，默认为True 允许 - look_for_keys=True：是否在~/.ssh中搜索私钥文件，默认为True 允许 - compress=False：是否打开压缩   两种连接远程服务端返回数据类型
+ exec_command  SSHClient.exec_command(command, bufsize=-1, timeout=None, get_pty=False, environment=None)  # 参数解释 - command：要执行的命令 - bufsize：与Python中文件对象的同名函数解释相同，缓冲区大小 - timeout：设置命令的超时相应事件 - get_pty：从服务器请求一个伪终端（默认为假） - environment：一个当前shell环境的字典，远程命令的默认执行环境   command参数为要执行的shell命令，打开一个新通道并执行请求的命令</description>
+    </item>
+    
+  </channel>
+</rss>

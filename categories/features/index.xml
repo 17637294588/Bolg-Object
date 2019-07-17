@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>features on HOME</title>
+    <link>/categories/features/</link>
+    <description>Recent content in features on HOME</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Fri, 15 Mar 2019 00:00:00 +0000</lastBuildDate>
+    
+	<atom:link href="/categories/features/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>xterm.js &#43; Paramiko实现Linux command界面</title>
+      <link>/2019/03/xterm.js-paramiko%E5%AE%9E%E7%8E%B0linux-command%E7%95%8C%E9%9D%A2/</link>
+      <pubDate>Fri, 15 Mar 2019 00:00:00 +0000</pubDate>
+      
+      <guid>/2019/03/xterm.js-paramiko%E5%AE%9E%E7%8E%B0linux-command%E7%95%8C%E9%9D%A2/</guid>
+      <description>vue + xterm.js &amp;amp; Django + Paramiko实现Linux command界面  实现逻辑：
+ 利用 xterm.js 在 vue组件实现终端样式 利用 Paramiko 实现Django 和 linux 数据交互 使用 websocket 实现场链接  django 作为中间桥梁实现 vue 和 linux 的数据交互
+  首先 vue 安装xterm  cnpm i xterm --save   在 main.js 中加入  # 加入样式 import &#39;xterm/dist/xterm.css&#39;   创建 Console.vue  &amp;lt;template&amp;gt; &amp;lt;div&amp;gt; &amp;lt;div class=&amp;quot;console&amp;quot; id=&amp;quot;terminal&amp;quot;&amp;gt;&amp;lt;/div&amp;gt; &amp;lt;/div&amp;gt; &amp;lt;/template&amp;gt; &amp;lt;script&amp;gt; import { Terminal } from &#39;xterm&#39; import * as fit from &#39;xterm/lib/addons/fit/fit&#39; import * as attach from &#39;xterm/lib/addons/attach/attach&#39; Terminal.</description>
+    </item>
+    
+    <item>
+      <title>WebSocket</title>
+      <link>/2019/03/websocket/</link>
+      <pubDate>Tue, 05 Mar 2019 00:00:00 +0000</pubDate>
+      
+      <guid>/2019/03/websocket/</guid>
+      <description>WebSocket 一、WebSocket是什么？ WebSocket是HTML5 开始提供的一种在单个TCP连接上进行全双工通信的协议 。 ​ TCP（Transmission Control Protocol 传输控制协议）是一种面向连接的、可靠的、基于字节流的通传输层信协议 。使用三次握手协议建立连接。 终止一个连接要经过四次握手挥手。
+三次握手
+四次挥手
+​ 全双工（Full Duplex）是通讯传输的一个术语。通信允许数据在两个方向上同时传输，它在能力上相当于两个单工通信方式的结合。全双工指可以同时（瞬时）进行信号的双向传输（A→B且B→A）。指A→B的同时B→A，是瞬时同步的。
+​ 单工就是在只允许甲方向乙方传送信息，而乙方不能向甲方传送 。（比喻汽车的单行道。）
+二.WebSocket诞生由来 1.最开始的轮询Polling阶段 ​ 现在，很多网站为了实现推送技术，所用的技术都是轮询。轮询是在特定的的时间间隔（如每1秒），由浏览器对服务器发出HTTP请求，然后由服务器返回最新的数据给客户端的浏览器。这种传统的模式带来很明显的缺点，即浏览器需要不断的向服务器发出请求，然而HTTP请求可能包含较长的 头部，其中真正有效的数据可能只是很小的一部分，显然这样会浪费很多的带宽等资源。
+2.改进版的长轮询Long polling阶段 ​ 长轮询是对轮询的改进版，客户端发送HTTP给服务器之后，有没有新消息，如果没有新消息，就一直等待。当有新消息的时候，才会返回给客户端。在某种程度上减小了网络带宽和CPU利用率等问题。但是这种方式还是有一种弊端：例如假设服务器端的数据更新速度很快，服务器在传送一个数据包给客户端后必须等待客户端的下一个Get请求到来，才能传递第二个更新的数据包给客户端，那么这样的话，客户端显示实时数据最快的时间为2×RTT（往返时间），而且如果在网络拥塞的情况下，这个时间用户是不能接受的，比如在股市的的报价上。另外，由于http数据包的头部数据量往往很大（通常有400多个字节），但是真正被服务器需要的数据却很少（有时只有10个字节左右），这样的数据包在网络上周期性的传输，难免对网络带宽是一种浪费。
+3.WebSocket诞生 ​ HTTP协议是一种无状态的、无连接的、单向的应用层协议。它采用了请求/响应模型。通信请求只能由客户端发起，服务端对请求做出应答处理，无法实现服务器主动向客户端发起消息。这种单向请求的特点，注定了如果服务器有连续的状态变化，客户端要获知就非常麻烦。大多数Web应用程序将通过频繁的异步javaScript和XML（AJAX）请求实现长轮询。轮询的效率低，非常浪费资源（因为必须不停连接，或者HTTP连接始终打开），因此WebSocket应运而生。
+​ WebSocket支持客户端和服务器端的双向通信，任何一方都可以主动发消息给对方，而且协议的头部又没有HTTP的Header那么大，WebSocket能更好的节省服务器资源和带宽，并且能够更实时地进行通讯。
+​ WebSocket 使得客户端和服务器之间的数据交换变得更加简单，允许服务端主动向客户端推送数据。在 WebSocket API 中，浏览器和服务器只需要完成一次握手，两者之间就直接可以创建持久性的连接，并进行双向数据传输。
+三、WebSocket的使用场景 ​ WebSockets不仅限于聊天/消息传递应用程序。它们适用于需要实时更新和即时信息交换的任何应用程序。一些示例包括但不限于：社交聊天、弹幕、多玩家游戏、协同编辑、股票基金实时报价、体育实况更新、视频会议、在线教育、智能家居等等。
+四、WebSocket的优点  较少的控制开销。在连接创建后，服务器和客户端之间交换数据时，用于协议控制的数据包头部相对较小。在不包含扩展的情况下，对于服务器到客户端的内容，此头部大小只有2至10字节（和数据包长度有关）；对于客户端到服务器的内容，此头部还需要加上额外的4字节的掩码。相对于HTTP请求每次都要携带完整的头部，此项开销显著减少了。 更强的实时性。由于协议是全双工的，所以服务器可以随时主动给客户端下发数据。相对于HTTP请求需要等待客户端发起请求服务端才能响应，延迟明显更少；即使是和Comet等类似的长轮询比较，其也能在短时间内更多次地传递数据。 保持连接状态。与HTTP不同的是，Websocket需要先创建连接，这就使得其成为一种有状态的协议，之后通信时可以省略部分状态信息。而HTTP请求可能需要在每个请求都携带状态信息（如身份认证等）。 更好的二进制支持。Websocket定义了二进制帧，相对HTTP，可以更轻松地处理二进制内容。 可以支持扩展。Websocket定义了扩展，用户可以扩展协议、实现部分自定义的子协议。如部分浏览器支持压缩等。 更好的压缩效果。相对于HTTP压缩，Websocket在适当的扩展支持下，可以沿用之前内容的上下文，在传递类似的数据时，可以显著地提高压缩率。  五、WebSocket协议原理 ​ Websocket是应用层第七层上的一个应用层协议，它必须依赖 HTTP 协议进行一次握手 ，握手成功后，数据就直接从 TCP 通道传输，与 HTTP 无关了。
+​ Websocket的数据传输是frame形式传输的，比如会将一条消息分为几个frame，按照先后顺序传输出去。这样做会有几个好处：
+​ 1）大数据的传输可以分片传输，不用考虑到数据大小导致的长度标志位不足够的情况。
+​ 2）和http的chunk一样，可以边生成数据边传递消息，即提高传输效率。
+WebSocket协议 WebSocket并不是全新的协议，而是利用了HTTP协议来建立连接。我们来看看WebSocket连接是如何创建的。</description>
+    </item>
+    
+    <item>
+      <title>Ansible-PlayBook</title>
+      <link>/2019/02/ansible-playbook/</link>
+      <pubDate>Fri, 22 Feb 2019 00:00:00 +0000</pubDate>
+      
+      <guid>/2019/02/ansible-playbook/</guid>
+      <description>ansible-playbook  在之前的ansible使用中，我们都是通过命令行的形式实现对应远程主机的响应管理
+但这样的工作方式功能上来说还是有一定的局限性，并且维护并不方便，引入playbook可以更加方便我们对于功能的编写维护，并且具有良好的灵活性
+playbook也可以理解为命令行功能的一个合集脚本，用来编写更加复杂的业务
+ yaml语法  Yaml为通用数据串行化格式语法，简洁而强大
+ansible中的配置文件就采用了Yaml格式语法存在，以下就是对Yaml语法的介绍
+  yaml基本语法规则如下  大小写敏感 使用缩进表示层级关系 缩进的空格数目不唯一，只要相同层级元素左侧对齐即可 #号表示注释  yaml语法支持的数据结构有三种：  键值对：相当于hash表映射关系，字典 序列：相当于数组或列表 纯量（标量）：单独的值，无法继续拆分，比如字符串、整数、浮点数、Null、布尔值（true、false）   字符串  字符串定义时，默认可以不使用引号标注  str_1: abc {&#39;str_1&#39;: &#39;abc&#39;,} # 对应Python中数据类型   如字符串中出现特殊字符或包含空格，需要使用引号标注  str_2: &#39;abc: bbb&#39; {&#39;str_2&#39;: &#39;abc: bbb&#39;} # 对应Python中数据类型   双引号不会对字符串中特殊字符进行转义  str_3: &#39;abc: \n bbb&#39; str_4: &amp;quot;abc: \n bbb&amp;quot; {&#39;abc: \\n bbb&#39;, &#39;str_4&#39;: &#39;abc: \n bbb&#39;} # 对应Python中数据类型   单引号字符串还有引号，需要使用两个单引号进行转义  `str_5: &#39;a&#39;&#39;b&#39;{&#39;str_5&#39;: &amp;quot;a&#39;b&amp;quot;} # 对应Python中数据类型`   当字符串需要换行时，从第二行开始的下面几行，需要有对齐缩进，换行会被解释为空格，其余缩进前空格会忽略  str_6: &#39;abc aaa bbb ccc&#39; {&#39;str_6&#39;: &#39;abc aaa bbb ccc&#39;} # 对应Python中数据类型   多行字符串可以使用 |保留换行符形成段落，或使用&amp;gt;将换行符替换为空格  str_7: &amp;gt; bbb aaa str_8: | bbb aaa {&#39;str_7&#39;: &#39;bbb aaa\n&#39;, &#39;str_8&#39;: &#39;bbb\naaa\n&#39;} # 对应Python中数据类型   +表示保留字符串末位的换行，-表示删除字符串末位的换行  `str_9: |+ aaabbbstr_10: |- aaabbb&#39;str_9&#39;: &#39;aaabbb\n&#39;, &#39;str_10&#39;: &#39;aaabbb&#39;} # 对应Python中数据类型`  键值对  Yaml中的键值对数据通过冒号定义，冒号后的数据与冒号之间存在一个空格  dict_1: a dict_2: { 1 : a } dict_3: a: 1 b: 2 {&#39;dict_1&#39;: &#39;a&#39;, &#39;dict_2&#39;: {1: &#39;a&#39;}, &#39;dict_3&#39;: {&#39;a&#39;: 1, &#39;b&#39;: 2}} # 对应Python中数据类型  序列 - list_1 - list_2 - - a_1 - a_2 [&#39;list_1&#39;, &#39;list_2&#39;, [&#39;a_1&#39;, &#39;a_2&#39;]] # 对应Python中数据类型  数据嵌套使用 `- test_1: - a - b- test_2: var_1: true var_2: 0.</description>
+    </item>
+    
+    <item>
+      <title>Ansible批量运维</title>
+      <link>/2019/02/ansible%E6%89%B9%E9%87%8F%E8%BF%90%E7%BB%B4/</link>
+      <pubDate>Wed, 13 Feb 2019 00:00:00 +0000</pubDate>
+      
+      <guid>/2019/02/ansible%E6%89%B9%E9%87%8F%E8%BF%90%E7%BB%B4/</guid>
+      <description>Ansible ## Ansible
+ ansible基于Python开发，集合了众多运维工具（puppet、cfengine、chef、func、fabric）的优点，实现了批量系统配置、批量程序部署、批量运行命令等功能
+在使用时，ansible不需要在被控端安装客户端，ansible工作基于ssh，只要被控端服务器有ssh服务，加上一个Python环境，就可以使用ansible
+另外，ansible在15年的时候，以1.5亿美元被RedHat公司收购，新版的RedHat操作系统内置ansible软件，很厉害的
+ Ansible部署  ansible安装可以通过源码，yum源以及python所提供的pip管理工具进行安装
+  使用pip管理工具进行安装  pip3 install ansible   使用yum进行安装  yum install epel-release # 安装扩展源 yum install ansible  Ansible配置  安装之后，默认ansible工具的配置文件在/etc/ansible下
+如果通过pip命令安装，是没有这个目录的，需要我们手动创建，其中所需主要配置文件如下
+  ansible.cfg：ansible主配置文件 hosts：被管理主机IP或者主机名列表文件，也是比较重要的一个文件 roles：角色或插件目录（默认为空）   此外除了默认的ansible的配置文件路径，关于ansible的配置文件路径选择还有如下几种，按照顺序表示优先级
+  export ANSIBLE_CONFI：指定的全局变量 ./ansible.cfg：当前目录下的配置文件 ~/.ansible.cfg：当前用户目录下的配置文件 /etc/ansible/ansible.cfg：etc目录下的配置文件   如果以上四个路径下均没有cfg配置文件，则使用默认配置
+如果通过源进行安装，那么在/etc/ansible/目录下会自动包含ansible.cfg文件
+也可以通过访问在线的配置文件地址进行获取
+  配置文件示例   https://raw.githubusercontent.com/ansible/ansible/devel/examples/ansible.cfg
+  ansible配置文件中可以进行ansible的各项参数的设置，包括并发线程数量、用户、模块路径、调优等等
+ defaluts：默认的配置项，一般不需要修改 privilege_escalation：执行命令的用户权限设置 paramiko_connection：paramiko插件设置 ssh_connection：ssh连接设置  默认ansible使用hosts文件列举监控主机，格式为ini，可以进行IP的分组以及IP规则设置，比如如下的例子</description>
+    </item>
+    
+    <item>
+      <title>Paramiko</title>
+      <link>/2019/02/paramiko/</link>
+      <pubDate>Tue, 05 Feb 2019 00:00:00 +0000</pubDate>
+      
+      <guid>/2019/02/paramiko/</guid>
+      <description>Paramiko  Paramiko是SSHv2协议的Python实现，提供客户端和服务器功能
+Paramiko本身是一个围绕SSH网络概念的纯Python接口
+利用paramiko我们可以通过Python方便的进行linux操作
+paramiko包含两个核心组件：SSHClient和SFTPClient
+ SSHClient  SSHClient的作用类似于Linux的ssh命令，是对SSH会话的封装
+该类封装了传输Transport，通道Channel及SFTPClient建立的方法open_sftp，通常用于执行远程命令
+ API  引入模块  import paramiko   创建SSH客户端实例  SSHClient.connect(hostname, port=22, username=None, password=None, pkey=None, key_filename=None, timeout=None, allow_agent=True, look_for_keys=True, compress=False..)  # 参数解释 - hostname：连接的目标主机 - port=SSH_PORT：指定端口 - username=None：验证的用户名 - password=None：验证的用户密码 - pkey=None：私钥方式用于身份验证 - key_filename=None：一个文件名或文件列表，指定私钥文件 - timeout=None：可选的tcp连接超时时间 - allow_agent=True：是否允许连接到ssh代理，默认为True 允许 - look_for_keys=True：是否在~/.ssh中搜索私钥文件，默认为True 允许 - compress=False：是否打开压缩   两种连接远程服务端返回数据类型
+ exec_command  SSHClient.exec_command(command, bufsize=-1, timeout=None, get_pty=False, environment=None)  # 参数解释 - command：要执行的命令 - bufsize：与Python中文件对象的同名函数解释相同，缓冲区大小 - timeout：设置命令的超时相应事件 - get_pty：从服务器请求一个伪终端（默认为假） - environment：一个当前shell环境的字典，远程命令的默认执行环境   command参数为要执行的shell命令，打开一个新通道并执行请求的命令</description>
+    </item>
+    
+    <item>
+      <title>celery&amp;rabbitmq</title>
+      <link>/2017/10/celeryrabbitmq/</link>
+      <pubDate>Sun, 08 Oct 2017 00:00:00 +0000</pubDate>
+      
+      <guid>/2017/10/celeryrabbitmq/</guid>
+      <description>找回密码逻辑  通过发送邮箱将回调连接发给用户邮箱，用户打开邮箱点击连接进入一个设置密码页面，设置新密码
+ 点击找回密码点击进入输入邮箱页面，用户输入邮箱号发给后台 后台拿到邮箱号将其生成 token，通过异步任务发送邮箱，邮箱内容是一条携带token的前端页面链接 用户进入邮箱，点击连接进入设置密码页 前端将 token 从连接上获取下来，将 token和密码一起发给后台 后台解析 token 如果没过期就把 token解析出来，用 token 解析出来的信息去数据库条件查询，将密码修改  说到异步，这里用的是 celery 和 Rabbitmq消息队列，将异步任务放入队列，要在 settings 里配置
+  INSTALLED_APPS = [ &#39;djcelery&#39;, ] # 配置消息队列 用的是 rabbitmq import djcelery djcelery.setup_loader() # 用户名 密码 公网ip 5672是rabbitmq服务端口号 # 这是全局配置，celery 会自动去找 rabbitmq 队列 BROKER_URL = &#39;amqp://guest:123456@39.106.64.101:5672&#39;   首先前端把邮箱号发给后台，后台经过处理将它放进消息队列  # 将前端获取的邮箱号创建 token # 导入创建 token 模块 from itsdangerous import TimedJSONWebSignatureSerializer,SignatureExpired from . import tasks # 导入异步消息队列 # 创建载荷 SECRET_KEY：是从 settings 导入进来的 ser = TimedJSONWebSignatureSerializer(SECRET_KEY,600) # 找回密码 发送邮箱 class Send_email(APIView): def post(self,request): &#39;&#39;&#39; 接受前端邮箱，创建 token 发给celery消息任务 &#39;&#39;&#39; email = request.</description>
+    </item>
+    
+    <item>
+      <title>JWT</title>
+      <link>/2017/08/jwt/</link>
+      <pubDate>Sun, 06 Aug 2017 00:00:00 +0000</pubDate>
+      
+      <guid>/2017/08/jwt/</guid>
+      <description>Josn Web Token  JWT的跨域请求流程
+ 客户端向服务器发起用户认证请求 服务端认证通过会生成token返回客户端 客户端保存token，以后每次访问服务端都带着token 服务端验证客户端的token，认证通过才给予响应  JWT的数据结构
+ 实际的jwt大概就像下面这样   JWT包含三个部分
+ Header（头部）
+ Header 部分是一个 JSON 对象，描述 JWT 的元数据，通常是下面的样子。
+ { &amp;quot;alg&amp;quot;: &amp;quot;HS256&amp;quot;, &amp;quot;typ&amp;quot;: &amp;quot;JWT&amp;quot; }   alg属性表示签名的算法（algorithm），默认是 HMAC SHA256（写成 HS256）；typ属性表示这个令牌（token）的类型（type），JWT 令牌统一写为JWT。最后，将上面的 JSON 对象使用 Base64URL 算法转成字符串。
+ Payload（载荷）
+ Payload 部分也是一个 JSON 对象，用来存放实际需要传递的数据。JWT 规定了7个官方字段
+```
+   iss (issuer)：签发人 exp (expiration time)：过期时间 sub (subject)：主题 aud (audience)：受众 nbf (Not Before)：生效时间 iat (Issued At)：签发时间 jti (JWT ID)：编号</description>
+    </item>
+    
+    <item>
+      <title>docker&amp;Fastfds</title>
+      <link>/2017/08/dockerfastfds/</link>
+      <pubDate>Sun, 06 Aug 2017 00:00:00 +0000</pubDate>
+      
+      <guid>/2017/08/dockerfastfds/</guid>
+      <description>添加docker-repo源：  yum -y install yum-utils  添加docker-repo源  sudo yum-config-manager &amp;ndash;add-repo https://download.docker.com/linux/centos/docker-ce.repo  安装免费 docker  yum install docker-ce  开启 docker  systemctl start docker  拉取fastdfs镜像  sudo docker image pull delron/fastdfs  开启fsdfs的tracker服务  docker run -dti &amp;ndash;network=host &amp;ndash;name tracker -v /var/fdfs/tracker:/var/fdfs delron/fastdfs tracker  如果想停止tracker服务，可以执行如下命令  docker container stop tracker  停止后，重新运行tracker，可以执行如下命令  docker container start tracker  删除 tracker 服务  docker rm tracker  开启storage服务，记得改IP  docker run -dti &amp;ndash;network=host &amp;ndash;name storage -e TRACKER_SERVER=39.</description>
+    </item>
+    
+    <item>
+      <title>二叉树数据结构</title>
+      <link>/2016/07/%E4%BA%8C%E5%8F%89%E6%A0%91%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/</link>
+      <pubDate>Sun, 10 Jul 2016 00:00:00 +0000</pubDate>
+      
+      <guid>/2016/07/%E4%BA%8C%E5%8F%89%E6%A0%91%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/</guid>
+      <description>二叉树  完全二叉树：整棵树的高度和满二叉树高度一致，最下面的子节点从左向右依次排布，最下层不需要挂满子节点
+满二叉树：整个树的每一层节点下面都挂满了子节点
+ 二叉树的遍历  深度优先遍历   深度优先搜索 (Depth First Search) 是沿着树的深度遍历树的节点，尽可能深的搜索树的分支
+  先序遍历
+ 先访问根节点，然后递归使用先序遍历访问左子树，再递归使用先序遍历访问右子树 根节点-&amp;gt;左子树-&amp;gt;右子树
+ 中序遍历
+ 中序遍历访问左子树，然后访问根节点，最后再递归使用中序遍历访问右子树 左子树-&amp;gt;根节点-&amp;gt;右子树
+ 后续遍历
+ 后序遍历访问左子树和右子树，最后访问根节点 左子树-&amp;gt;右子树-&amp;gt;根节点
+ 广度优先遍历
+   从树的root（根节点）开始，从上到下从从左到右遍历整个树的节点
+ 封装类模拟二叉树 &#39;&#39;&#39; 1:定义一个节点类，有父节点，左节点，右节点 2：定义一个构造树的类，初始化一个节点 3：定义添加节点方法，接受一个节点变量 4：先添加一个父节点，再添加左节点，右节点，当三个节点都存在时，再添加时就让将左右节点添加到 queue里 5：广度优先遍历，定义两个:列表，一个用来与节点对象创建关系，一个用来存放节点 6：深度优先遍历，利用递归实现的先序，中序，后续遍历 &#39;&#39;&#39; class Node(object): def __init__(self,item): # 左节点 self.lchild = None # 根节点 self.item = item # 右节点 self.rchild = None # 构造二叉树 class Tree: &amp;quot;&amp;quot;&amp;quot;树类&amp;quot;&amp;quot;&amp;quot; def __init__(self, root=None): self.</description>
+    </item>
+    
+    <item>
+      <title>使用for循环写一个死循环</title>
+      <link>/2016/05/%E4%BD%BF%E7%94%A8for%E5%BE%AA%E7%8E%AF%E5%86%99%E4%B8%80%E4%B8%AA%E6%AD%BB%E5%BE%AA%E7%8E%AF/</link>
+      <pubDate>Thu, 05 May 2016 00:00:00 +0000</pubDate>
+      
+      <guid>/2016/05/%E4%BD%BF%E7%94%A8for%E5%BE%AA%E7%8E%AF%E5%86%99%E4%B8%80%E4%B8%AA%E6%AD%BB%E5%BE%AA%E7%8E%AF/</guid>
+      <description>for 循环  我们知道 for 循环用来遍历可迭代对象，那什么才能叫可迭代对象，我们可以有 dir 打印一下看结果
+ # 我们定义一个列表，看它为什么是可迭代对象 a = [1,2,3] print(dir(a)) # 打印结果如下 --&amp;gt; 底层函数中有 __iter__ 方法的都是可迭代对象，你也可以使用别的数据类型尝试 [&#39;__add__&#39;, &#39;__class__&#39;, &#39;__contains__&#39;, &#39;__delattr__&#39;, &#39;__delitem__&#39;, &#39;__dir__&#39;, &#39;__doc__&#39;, &#39;__eq__&#39;, &#39;__format__&#39;, &#39;__ge__&#39;, &#39;__getattribute__&#39;, &#39;__getitem__&#39;, &#39;__gt__&#39;, &#39;__hash__&#39;, &#39;__iadd__&#39;, &#39;__imul__&#39;, &#39;__init__&#39;, &#39;__init_subclass__&#39;, &#39;__iter__&#39;, &#39;__le__&#39;, &#39;__len__&#39;, &#39;__lt__&#39;, &#39;__mul__&#39;, &#39;__ne__&#39;, &#39;__new__&#39;, &#39;__reduce__&#39;, &#39;__reduce_ex__&#39;, &#39;__repr__&#39;, &#39;__reversed__&#39;, &#39;__rmul__&#39;, &#39;__setattr__&#39;, &#39;__setitem__&#39;, &#39;__sizeof__&#39;, &#39;__str__&#39;, &#39;__subclasshook__&#39;, &#39;append&#39;, &#39;clear&#39;, &#39;copy&#39;, &#39;count&#39;, &#39;extend&#39;, &#39;index&#39;, &#39;insert&#39;, &#39;pop&#39;, &#39;remove&#39;, &#39;reverse&#39;, &#39;sort&#39;]   for 循环其实是底层实现是 while 循环，采用了 iter 方法，将列表变成了迭代器，一件件取出，知道取完为止</description>
+    </item>
+    
+  </channel>
+</rss>

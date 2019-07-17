@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>后端 on HOME</title>
+    <link>/categories/%E5%90%8E%E7%AB%AF/</link>
+    <description>Recent content in 后端 on HOME</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Sun, 10 Jul 2016 00:00:00 +0000</lastBuildDate>
+    
+	<atom:link href="/categories/%E5%90%8E%E7%AB%AF/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>二叉树数据结构</title>
+      <link>/2016/07/%E4%BA%8C%E5%8F%89%E6%A0%91%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/</link>
+      <pubDate>Sun, 10 Jul 2016 00:00:00 +0000</pubDate>
+      
+      <guid>/2016/07/%E4%BA%8C%E5%8F%89%E6%A0%91%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/</guid>
+      <description>二叉树  完全二叉树：整棵树的高度和满二叉树高度一致，最下面的子节点从左向右依次排布，最下层不需要挂满子节点
+满二叉树：整个树的每一层节点下面都挂满了子节点
+ 二叉树的遍历  深度优先遍历   深度优先搜索 (Depth First Search) 是沿着树的深度遍历树的节点，尽可能深的搜索树的分支
+  先序遍历
+ 先访问根节点，然后递归使用先序遍历访问左子树，再递归使用先序遍历访问右子树 根节点-&amp;gt;左子树-&amp;gt;右子树
+ 中序遍历
+ 中序遍历访问左子树，然后访问根节点，最后再递归使用中序遍历访问右子树 左子树-&amp;gt;根节点-&amp;gt;右子树
+ 后续遍历
+ 后序遍历访问左子树和右子树，最后访问根节点 左子树-&amp;gt;右子树-&amp;gt;根节点
+ 广度优先遍历
+   从树的root（根节点）开始，从上到下从从左到右遍历整个树的节点
+ 封装类模拟二叉树 &#39;&#39;&#39; 1:定义一个节点类，有父节点，左节点，右节点 2：定义一个构造树的类，初始化一个节点 3：定义添加节点方法，接受一个节点变量 4：先添加一个父节点，再添加左节点，右节点，当三个节点都存在时，再添加时就让将左右节点添加到 queue里 5：广度优先遍历，定义两个:列表，一个用来与节点对象创建关系，一个用来存放节点 6：深度优先遍历，利用递归实现的先序，中序，后续遍历 &#39;&#39;&#39; class Node(object): def __init__(self,item): # 左节点 self.lchild = None # 根节点 self.item = item # 右节点 self.rchild = None # 构造二叉树 class Tree: &amp;quot;&amp;quot;&amp;quot;树类&amp;quot;&amp;quot;&amp;quot; def __init__(self, root=None): self.</description>
+    </item>
+    
+    <item>
+      <title>使用for循环写一个死循环</title>
+      <link>/2016/05/%E4%BD%BF%E7%94%A8for%E5%BE%AA%E7%8E%AF%E5%86%99%E4%B8%80%E4%B8%AA%E6%AD%BB%E5%BE%AA%E7%8E%AF/</link>
+      <pubDate>Thu, 05 May 2016 00:00:00 +0000</pubDate>
+      
+      <guid>/2016/05/%E4%BD%BF%E7%94%A8for%E5%BE%AA%E7%8E%AF%E5%86%99%E4%B8%80%E4%B8%AA%E6%AD%BB%E5%BE%AA%E7%8E%AF/</guid>
+      <description>for 循环  我们知道 for 循环用来遍历可迭代对象，那什么才能叫可迭代对象，我们可以有 dir 打印一下看结果
+ # 我们定义一个列表，看它为什么是可迭代对象 a = [1,2,3] print(dir(a)) # 打印结果如下 --&amp;gt; 底层函数中有 __iter__ 方法的都是可迭代对象，你也可以使用别的数据类型尝试 [&#39;__add__&#39;, &#39;__class__&#39;, &#39;__contains__&#39;, &#39;__delattr__&#39;, &#39;__delitem__&#39;, &#39;__dir__&#39;, &#39;__doc__&#39;, &#39;__eq__&#39;, &#39;__format__&#39;, &#39;__ge__&#39;, &#39;__getattribute__&#39;, &#39;__getitem__&#39;, &#39;__gt__&#39;, &#39;__hash__&#39;, &#39;__iadd__&#39;, &#39;__imul__&#39;, &#39;__init__&#39;, &#39;__init_subclass__&#39;, &#39;__iter__&#39;, &#39;__le__&#39;, &#39;__len__&#39;, &#39;__lt__&#39;, &#39;__mul__&#39;, &#39;__ne__&#39;, &#39;__new__&#39;, &#39;__reduce__&#39;, &#39;__reduce_ex__&#39;, &#39;__repr__&#39;, &#39;__reversed__&#39;, &#39;__rmul__&#39;, &#39;__setattr__&#39;, &#39;__setitem__&#39;, &#39;__sizeof__&#39;, &#39;__str__&#39;, &#39;__subclasshook__&#39;, &#39;append&#39;, &#39;clear&#39;, &#39;copy&#39;, &#39;count&#39;, &#39;extend&#39;, &#39;index&#39;, &#39;insert&#39;, &#39;pop&#39;, &#39;remove&#39;, &#39;reverse&#39;, &#39;sort&#39;]   for 循环其实是底层实现是 while 循环，采用了 iter 方法，将列表变成了迭代器，一件件取出，知道取完为止</description>
+    </item>
+    
+  </channel>
+</rss>

@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    
+    <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="generator" content="Hugo 0.55.6 with theme Tranquilpeak 0.4.3-SNAPSHOT">
+<meta name="author" content="SuJiankang">
+<meta name="keywords" content=", categories, tags">
+<meta name="description" content="找回密码逻辑  通过发送邮箱将回调连接发给用户邮箱，用户打开邮箱点击连接进入一个设置密码页面，设置新密码
+ 点击找回密码点击进入输入邮箱页面，用户输入邮箱号发给后台 后台拿到邮箱号将其生成 token，通过异步任务发送邮箱，邮箱内容是一条携带token的前端页面链接 用户进入邮箱，点击连接进入设置密码页 前端将 token 从连接上获取下来，将 token和密码一起发给后台 后台解析 token 如果没过期就把 token解析出来，用 token 解析出来的信息去数据库条件查询，将密码修改  说到异步，这里用的是 celery 和 Rabbitmq消息队列，将异步任务放入队列，要在 settings 里配置
+  INSTALLED_APPS = [ &#39;djcelery&#39;, ] # 配置消息队列 用的是 rabbitmq import djcelery djcelery.setup_loader() # 用户名 密码 公网ip 5672是rabbitmq服务端口号 # 这是全局配置，celery 会自动去找 rabbitmq 队列 BROKER_URL = &#39;amqp://guest:123456@39.106.64.101:5672&#39;   首先前端把邮箱号发给后台，后台经过处理将它放进消息队列  # 将前端获取的邮箱号创建 token # 导入创建 token 模块 from itsdangerous import TimedJSONWebSignatureSerializer,SignatureExpired from . import tasks # 导入异步消息队列 # 创建载荷 SECRET_KEY：是从 settings 导入进来的 ser = TimedJSONWebSignatureSerializer(SECRET_KEY,600) # 找回密码 发送邮箱 class Send_email(APIView): def post(self,request): &#39;&#39;&#39; 接受前端邮箱，创建 token 发给celery消息任务 &#39;&#39;&#39; email = request.">
+
+
+<meta property="og:description" content="找回密码逻辑  通过发送邮箱将回调连接发给用户邮箱，用户打开邮箱点击连接进入一个设置密码页面，设置新密码
+ 点击找回密码点击进入输入邮箱页面，用户输入邮箱号发给后台 后台拿到邮箱号将其生成 token，通过异步任务发送邮箱，邮箱内容是一条携带token的前端页面链接 用户进入邮箱，点击连接进入设置密码页 前端将 token 从连接上获取下来，将 token和密码一起发给后台 后台解析 token 如果没过期就把 token解析出来，用 token 解析出来的信息去数据库条件查询，将密码修改  说到异步，这里用的是 celery 和 Rabbitmq消息队列，将异步任务放入队列，要在 settings 里配置
+  INSTALLED_APPS = [ &#39;djcelery&#39;, ] # 配置消息队列 用的是 rabbitmq import djcelery djcelery.setup_loader() # 用户名 密码 公网ip 5672是rabbitmq服务端口号 # 这是全局配置，celery 会自动去找 rabbitmq 队列 BROKER_URL = &#39;amqp://guest:123456@39.106.64.101:5672&#39;   首先前端把邮箱号发给后台，后台经过处理将它放进消息队列  # 将前端获取的邮箱号创建 token # 导入创建 token 模块 from itsdangerous import TimedJSONWebSignatureSerializer,SignatureExpired from . import tasks # 导入异步消息队列 # 创建载荷 SECRET_KEY：是从 settings 导入进来的 ser = TimedJSONWebSignatureSerializer(SECRET_KEY,600) # 找回密码 发送邮箱 class Send_email(APIView): def post(self,request): &#39;&#39;&#39; 接受前端邮箱，创建 token 发给celery消息任务 &#39;&#39;&#39; email = request.">
+<meta property="og:type" content="article">
+<meta property="og:title" content="celery&amp;rabbitmq">
+<meta name="twitter:title" content="celery&amp;rabbitmq">
+<meta property="og:url" content="/2017/10/celeryrabbitmq/">
+<meta property="twitter:url" content="/2017/10/celeryrabbitmq/">
+<meta property="og:site_name" content="HOME">
+<meta property="og:description" content="找回密码逻辑  通过发送邮箱将回调连接发给用户邮箱，用户打开邮箱点击连接进入一个设置密码页面，设置新密码
+ 点击找回密码点击进入输入邮箱页面，用户输入邮箱号发给后台 后台拿到邮箱号将其生成 token，通过异步任务发送邮箱，邮箱内容是一条携带token的前端页面链接 用户进入邮箱，点击连接进入设置密码页 前端将 token 从连接上获取下来，将 token和密码一起发给后台 后台解析 token 如果没过期就把 token解析出来，用 token 解析出来的信息去数据库条件查询，将密码修改  说到异步，这里用的是 celery 和 Rabbitmq消息队列，将异步任务放入队列，要在 settings 里配置
+  INSTALLED_APPS = [ &#39;djcelery&#39;, ] # 配置消息队列 用的是 rabbitmq import djcelery djcelery.setup_loader() # 用户名 密码 公网ip 5672是rabbitmq服务端口号 # 这是全局配置，celery 会自动去找 rabbitmq 队列 BROKER_URL = &#39;amqp://guest:123456@39.106.64.101:5672&#39;   首先前端把邮箱号发给后台，后台经过处理将它放进消息队列  # 将前端获取的邮箱号创建 token # 导入创建 token 模块 from itsdangerous import TimedJSONWebSignatureSerializer,SignatureExpired from . import tasks # 导入异步消息队列 # 创建载荷 SECRET_KEY：是从 settings 导入进来的 ser = TimedJSONWebSignatureSerializer(SECRET_KEY,600) # 找回密码 发送邮箱 class Send_email(APIView): def post(self,request): &#39;&#39;&#39; 接受前端邮箱，创建 token 发给celery消息任务 &#39;&#39;&#39; email = request.">
+<meta name="twitter:description" content="找回密码逻辑  通过发送邮箱将回调连接发给用户邮箱，用户打开邮箱点击连接进入一个设置密码页面，设置新密码
+ 点击找回密码点击进入输入邮箱页面，用户输入邮箱号发给后台 后台拿到邮箱号将其生成 token，通过异步任务发送邮箱，邮箱内容是一条携带token的前端页面链接 用户进入邮箱，点击连接进入设置密码页 前端将 token 从连接上获取下来，将 token和密码一起发给后台 后台解析 token 如果没过期就把 token解析出来，用 token 解析出来的信息去数据库条件查询，将密码修改  说到异步，这里用的是 celery 和 Rabbitmq消息队列，将异步任务放入队列，要在 settings 里配置
+  INSTALLED_APPS = [ &#39;djcelery&#39;, ] # 配置消息队列 用的是 rabbitmq import djcelery djcelery.setup_loader() # 用户名 密码 公网ip 5672是rabbitmq服务端口号 # 这是全局配置，celery 会自动去找 rabbitmq 队列 BROKER_URL = &#39;amqp://guest:123456@39.106.64.101:5672&#39;   首先前端把邮箱号发给后台，后台经过处理将它放进消息队列  # 将前端获取的邮箱号创建 token # 导入创建 token 模块 from itsdangerous import TimedJSONWebSignatureSerializer,SignatureExpired from . import tasks # 导入异步消息队列 # 创建载荷 SECRET_KEY：是从 settings 导入进来的 ser = TimedJSONWebSignatureSerializer(SECRET_KEY,600) # 找回密码 发送邮箱 class Send_email(APIView): def post(self,request): &#39;&#39;&#39; 接受前端邮箱，创建 token 发给celery消息任务 &#39;&#39;&#39; email = request.">
+<meta property="og:locale" content="zh-cn">
+
+  
+    <meta property="article:published_time" content="2017-10-08T00:00:00">
+  
+  
+    <meta property="article:modified_time" content="2017-10-08T00:00:00">
+  
+  
+  
+    
+      <meta property="article:section" content="python">
+    
+      <meta property="article:section" content="features">
+    
+  
+  
+    
+      <meta property="article:tag" content="Django">
+    
+  
+
+
+<meta name="twitter:card" content="summary">
+
+
+
+
+
+
+
+  <meta property="og:image" content="//d1u9biwaxjngwg.cloudfront.net/cover-image-showcase/city-750.jpg">
+  <meta property="twitter:image" content="//d1u9biwaxjngwg.cloudfront.net/cover-image-showcase/city-750.jpg">
+
+
+  <meta property="og:image" content="//d1u9biwaxjngwg.cloudfront.net/cover-image-showcase/city.jpg">
+  <meta property="twitter:image" content="//d1u9biwaxjngwg.cloudfront.net/cover-image-showcase/city.jpg">
+
+
+
+
+  <meta property="og:image" content="https://www.gravatar.com/avatar/d09dc2d7aa5c467519e8af89f7b3d94c?s=640">
+  <meta property="twitter:image" content="https://www.gravatar.com/avatar/d09dc2d7aa5c467519e8af89f7b3d94c?s=640">
+
+
+    <title>celery&amp;rabbitmq</title>
+
+    <link rel="icon" href="/favicon.png">
+    
+
+    
+
+    <link rel="canonical" href="/2017/10/celeryrabbitmq/">
+
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha256-eZrrJcwDc/3uDhsdt61sL2oOBY362qM3lon1gyExkL0=" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.4/jquery.fancybox.min.css" integrity="sha256-vuXZ9LGmmwtjqFX1F+EKin1ThZMub58gKULUyf0qECk=" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.4/helpers/jquery.fancybox-thumbs.min.css" integrity="sha256-SEa4XYAHihTcEP1f5gARTB2K26Uk8PsndQYHQC1f4jU=" crossorigin="anonymous" />
+    
+    
+    <link rel="stylesheet" href="/css/style-twzjdbqhmnnacqs0pwwdzcdbt8yhv8giawvjqjmyfoqnvazl0dalmnhdkvp7.min.css" />
+    
+    
+
+    
+      
+    
+    
+  </head>
+
+  <body>
+    <div id="blog">
+      <header id="header" data-behavior="4">
+  <i id="btn-open-sidebar" class="fa fa-lg fa-bars"></i>
+  <div class="header-title">
+    <a class="header-title-link" href="/">HOME</a>
+  </div>
+  
+    
+      <a class="header-right-picture "
+         href="/#about">
+    
+    
+    
+      
+        <img class="header-picture" src="https://www.gravatar.com/avatar/d09dc2d7aa5c467519e8af89f7b3d94c?s=90" alt="作者的图片" />
+      
+    
+    </a>
+  
+</header>
+
+      <nav id="sidebar" data-behavior="4">
+  <div class="sidebar-container">
+    
+      <div class="sidebar-profile">
+        <a href="/#about">
+          <img class="sidebar-profile-picture" src="https://www.gravatar.com/avatar/d09dc2d7aa5c467519e8af89f7b3d94c?s=110" alt="作者的图片" />
+        </a>
+        <h4 class="sidebar-profile-name">SuJiankang</h4>
+        
+          <h5 class="sidebar-profile-bio"><strong>自古英雄出炼狱 从来富贵入凡尘</strong></h5>
+        
+      </div>
+    
+    <ul class="sidebar-buttons">
+      
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="/">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-home"></i>
+      
+      <span class="sidebar-button-desc">首页</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="/categories">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-bookmark"></i>
+      
+      <span class="sidebar-button-desc">分类</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="/tags">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-tags"></i>
+      
+      <span class="sidebar-button-desc">标签</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="/archives">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-archive"></i>
+      
+      <span class="sidebar-button-desc">归档</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="/#about">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-question"></i>
+      
+      <span class="sidebar-button-desc">关于</span>
+    </a>
+  </li>
+
+
+    </ul>
+    <ul class="sidebar-buttons">
+      
+
+    </ul>
+    <ul class="sidebar-buttons">
+      
+
+    </ul>
+  </div>
+</nav>
+
+      
+  <div class="post-header-cover
+              text-center
+              "
+       style="background-image:url('//d1u9biwaxjngwg.cloudfront.net/cover-image-showcase/city.jpg')"
+       data-behavior="4">
+    
+  </div>
+
+
+      <div id="main" data-behavior="4"
+        class="hasCover
+               hasCoverMetaOut
+               ">
+        <article class="post" itemscope itemType="http://schema.org/BlogPosting">
+          
+          
+            <div class="post-header main-content-wrap text-center">
+  
+    <h1 class="post-title" itemprop="headline">
+      celery&amp;rabbitmq
+    </h1>
+  
+  
+  <div class="postShorten-meta post-meta">
+    
+      <time itemprop="datePublished" datetime="2017-10-08T00:00:00Z">
+        
+  十月 8, 2017
+
+      </time>
+    
+    
+  
+  
+    <span>发布在</span>
+    
+      <a class="category-link" href="/categories/python">python</a>, 
+    
+      <a class="category-link" href="/categories/features">features</a>
+    
+  
+
+  </div>
+
+</div>
+          
+          <div class="post-content markdown" itemprop="articleBody">
+            <div class="main-content-wrap">
+              
+
+<h2 id="找回密码逻辑">找回密码逻辑</h2>
+
+<ul>
+<li><p>通过发送邮箱将回调连接发给用户邮箱，用户打开邮箱点击连接进入一个设置密码页面，设置新密码</p>
+
+<ol>
+<li>点击找回密码点击进入输入邮箱页面，用户输入邮箱号发给后台</li>
+<li>后台拿到邮箱号将其生成 token，通过异步任务发送邮箱，邮箱内容是一条携带token的前端页面链接</li>
+<li>用户进入邮箱，点击连接进入设置密码页</li>
+<li>前端将 token 从连接上获取下来，将 token和密码一起发给后台</li>
+<li>后台解析 token 如果没过期就把 token解析出来，用 token 解析出来的信息去数据库条件查询，将密码修改</li>
+</ol></li>
+
+<li><p>说到异步，这里用的是 celery 和 Rabbitmq消息队列，将异步任务放入队列，要在 settings 里配置</p></li>
+</ul>
+
+<pre><code class="language-python">  INSTALLED_APPS = [
+     
+      'djcelery',
+  ]
+  
+  # 配置消息队列  用的是 rabbitmq
+  import djcelery
+  
+  djcelery.setup_loader()
+  #                  用户名   密码   公网ip    5672是rabbitmq服务端口号 
+  # 这是全局配置，celery 会自动去找 rabbitmq 队列
+  BROKER_URL = 'amqp://guest:123456@39.106.64.101:5672'
+</code></pre>
+
+<ul>
+<li>首先前端把邮箱号发给后台，后台经过处理将它放进消息队列</li>
+</ul>
+
+<pre><code class="language-python">  # 将前端获取的邮箱号创建 token
+  # 导入创建 token 模块
+  from itsdangerous import TimedJSONWebSignatureSerializer,SignatureExpired
+  from . import tasks     # 导入异步消息队列
+  
+  # 创建载荷   SECRET_KEY：是从 settings 导入进来的
+  ser = TimedJSONWebSignatureSerializer(SECRET_KEY,600)
+  
+  # 找回密码 发送邮箱
+  class Send_email(APIView):
+  
+      def post(self,request):
+          '''
+              接受前端邮箱，创建 token 发给celery消息任务
+          '''
+          email = request.data['email']
+  
+          try:
+              user_email = models.Users.objects.get(email=email)
+          
+          except:
+              return Response({'code':201,'mes':'邮箱不存在'})
+  
+          else:
+  
+              # 邮箱存在，将邮箱信息封装，放入载荷生成 token
+              data = {'email':email}
+              token = ser.dumps(data).decode()      # dumps后的 data是二进制的 token 串前有个 b',需要decode解码
+  
+              # 将邮箱号和生成的 token 发给传给 tasks 队列
+              # send_user_email:是 tasks 文件中的一个方法
+              tasks.send_user_email.delay(email,token)
+              
+              # 消息队列会异步发送邮箱。这里直接返回200即可
+              return Response({'code':200})
+</code></pre>
+
+<ul>
+<li>上面提到了 tasks 它就是另外建的一个文件，里面放入多任务，下面创建一个 tasks.py 文件</li>
+</ul>
+
+<pre><code class="language-python">  # 要开启 Rabbitmq 服务
+  from django.core.mail import send_mail    # 发送邮箱模块
+  from celery import task                  # ??任务模块
+  from api_shop.settings import EMAIL_HOST_USER    # 邮箱发送人,settings里导入的
+  import django     #  ???
+  django.setup()
+  from time import sleep
+  
+  @task
+  def send_user_email(email,token):
+      title = '欢迎你'
+      mes = '''
+              点击该链接重置密码：\r\n
+              http://127.0.0.1:8080/#/change_pwd?token=%s       
+          '''% token
+  
+      # 发送邮件，邮件也可能会由于某种因素发送失败，如果发送失败，用户再点击发送一次就好
+      try:
+          send_mail(title,mes,EMAIL_HOST_USER,[email])
+      except:
+          pass
+</code></pre>
+
+<ul>
+<li>此时任务已经放进了消息队列里， celery 要开启 worker 执行任务</li>
+</ul>
+
+<pre><code class="language-python">  # 进入项目里 新开启一个服务
+  python manage.py celery worker
+</code></pre>
+
+<ul>
+<li>当邮箱发送成功，用户就可以打开邮箱看到一条连接，是我们自己设置好的回调页面，用户进入页面可以输入密码，我们要将把 token 从 url 上取到，和密码一起发起后台</li>
+</ul>
+
+<pre><code class="language-vue">  &lt;script&gt;
+      export default {
+          data:function(){
+              return{
+                  new_pwd:&quot;&quot;,
+              }
+          },
+          methods: {
+              on_submit:function(){
+                  var r = this.$router
+                  // 从 url 上取出 token
+                  let token = this.$route.query.token
+                  let post_data = new FormData()
+                  post_data.append('token',token)
+                  post_data.append('new_pwd',this.new_pwd)
+                  this.axios({
+                  url:&quot;http://127.0.0.1:8000/api/update_pwd/&quot;,
+                  method:&quot;post&quot;,
+                  data:post_data
+                  }).then(res=&gt;{
+                  console.log(res)
+                  if(res.data.code==200){
+                    alert('设置成功')
+                  r.push({'path':&quot;/login&quot;})
+                  }else{
+                  console.log(res.data.mes)
+                    alert('设置失败')
+                  }
+                  }).catch(error=&gt;{
+                  console.log(error)
+                  })
+                  
+              }
+          },
+      }
+      &lt;/script&gt;
+</code></pre>
+
+<ul>
+<li>将请求发给后台，后台验证解析 token 看是否已过期，同时将其解析出原数据，拿到原数据和密码就可以条件修改了</li>
+</ul>
+
+<pre><code class="language-python">  # 修改密码
+  class Update_pwd(APIView):
+      
+      def post(self,request):
+          token = request.data['token']
+          password = request.data['new_pwd']
+  
+          try:
+  
+              # ser.loads：载荷.loads 可以将 token 解析
+              email = ser.loads(token)['email']
+  
+          except SignatureExpired:
+              return Response({'data':'邮箱过期'})
+  
+          '''
+              将当前用户和新密码传给 序列化器 修改密码
+          '''
+          user = models.Users.objects.filter(email=email).first()
+          res_user = serializer.FindPasswordSerializer(
+              instance = user,
+              data = {'password':password}    # data 需要传递的是个对象或一个字典
+          )
+  
+          if res_user.is_valid():
+              res_user.save()
+              return Response({'code':200})
+          else:
+              return Response({'code':201,'mes':res_user.errors})
+</code></pre>
+
+<ul>
+<li>修改是用序列化器FindPasswordSerializer 修改的，我们还要去 serializer 创建序列化器</li>
+</ul>
+
+<pre><code class="language-python">  # 找回密码修改密码入库 因为这里只操作了 password 所以没必要用 ModelSerializer
+  class FindPasswordSerializer(serializers.Serializer):
+      password = serializers.CharField(
+          write_only = True,
+          min_length = 8,
+          max_length = 20,
+          error_messages={
+              'min_length': '太短了',
+              'max_length': '太长了',
+          }
+      )
+      
+      def update(self,instance,validate):
+          # instance 当前用户对象 set_password:设置密码 validate:views接受的前端数据
+          instance.set_password(validate['password'])
+          instance.save()
+          return instance     # 将修改过的用户返回 views
+</code></pre>
+
+<ul>
+<li>将处理后的 instance（用户对象）返回 views，views保存返回状态</li>
+</ul>
+
+              
+            </div>
+          </div>
+          <div id="post-footer" class="post-footer main-content-wrap">
+            
+              
+                
+                
+                  <div class="post-footer-tags">
+                    <span class="text-color-light text-small">标签</span><br/>
+                    
+  <a class="tag tag--primary tag--small" href="/tags/django/">Django</a>
+
+                  </div>
+                
+              
+            
+            <div class="post-actions-wrap">
+  
+      <nav >
+        <ul class="post-actions post-action-nav">
+          
+            <li class="post-action">
+              
+                <a class="post-action-btn btn btn--default tooltip--top" href="/2019/02/paramiko/" data-tooltip="Paramiko">
+              
+                  <i class="fa fa-angle-left"></i>
+                  <span class="hide-xs hide-sm text-small icon-ml">下一篇</span>
+                </a>
+            </li>
+            <li class="post-action">
+              
+                <a class="post-action-btn btn btn--default tooltip--top" href="/2017/08/jwt/" data-tooltip="JWT">
+              
+                  <span class="hide-xs hide-sm text-small icon-mr">上一篇</span>
+                  <i class="fa fa-angle-right"></i>
+                </a>
+            </li>
+          
+        </ul>
+      </nav>
+    <ul class="post-actions post-action-share" >
+      
+        <li class="post-action hide-lg hide-md hide-sm">
+          <a class="post-action-btn btn btn--default btn-open-shareoptions" href="#btn-open-shareoptions">
+            <i class="fa fa-share-alt"></i>
+          </a>
+        </li>
+        
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://www.facebook.com/sharer/sharer.php?u=/2017/10/celeryrabbitmq/">
+              <i class="fa fa-facebook-official"></i>
+            </a>
+          </li>
+        
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://twitter.com/intent/tweet?text=/2017/10/celeryrabbitmq/">
+              <i class="fa fa-twitter"></i>
+            </a>
+          </li>
+        
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://plus.google.com/share?url=/2017/10/celeryrabbitmq/">
+              <i class="fa fa-google-plus"></i>
+            </a>
+          </li>
+        
+      
+      
+        <li class="post-action">
+          <a class="post-action-btn btn btn--default" href="#disqus_thread">
+            <i class="fa fa-comment-o"></i>
+          </a>
+        </li>
+      
+      <li class="post-action">
+        
+          <a class="post-action-btn btn btn--default" href="#">
+        
+          <i class="fa fa-list"></i>
+        </a>
+      </li>
+    </ul>
+  
+</div>
+
+            
+              
+                <div id="disqus_thread">
+  <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+              
+            
+          </div>
+        </article>
+        <footer id="footer" class="main-content-wrap">
+  <span class="copyrights">
+    &copy; 2019 SuJiankang. All Rights Reserved
+  </span>
+</footer>
+
+      </div>
+      <div id="bottom-bar" class="post-bottom-bar" data-behavior="4">
+        <div class="post-actions-wrap">
+  
+      <nav >
+        <ul class="post-actions post-action-nav">
+          
+            <li class="post-action">
+              
+                <a class="post-action-btn btn btn--default tooltip--top" href="/2019/02/paramiko/" data-tooltip="Paramiko">
+              
+                  <i class="fa fa-angle-left"></i>
+                  <span class="hide-xs hide-sm text-small icon-ml">下一篇</span>
+                </a>
+            </li>
+            <li class="post-action">
+              
+                <a class="post-action-btn btn btn--default tooltip--top" href="/2017/08/jwt/" data-tooltip="JWT">
+              
+                  <span class="hide-xs hide-sm text-small icon-mr">上一篇</span>
+                  <i class="fa fa-angle-right"></i>
+                </a>
+            </li>
+          
+        </ul>
+      </nav>
+    <ul class="post-actions post-action-share" >
+      
+        <li class="post-action hide-lg hide-md hide-sm">
+          <a class="post-action-btn btn btn--default btn-open-shareoptions" href="#btn-open-shareoptions">
+            <i class="fa fa-share-alt"></i>
+          </a>
+        </li>
+        
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://www.facebook.com/sharer/sharer.php?u=/2017/10/celeryrabbitmq/">
+              <i class="fa fa-facebook-official"></i>
+            </a>
+          </li>
+        
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://twitter.com/intent/tweet?text=/2017/10/celeryrabbitmq/">
+              <i class="fa fa-twitter"></i>
+            </a>
+          </li>
+        
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://plus.google.com/share?url=/2017/10/celeryrabbitmq/">
+              <i class="fa fa-google-plus"></i>
+            </a>
+          </li>
+        
+      
+      
+        <li class="post-action">
+          <a class="post-action-btn btn btn--default" href="#disqus_thread">
+            <i class="fa fa-comment-o"></i>
+          </a>
+        </li>
+      
+      <li class="post-action">
+        
+          <a class="post-action-btn btn btn--default" href="#">
+        
+          <i class="fa fa-list"></i>
+        </a>
+      </li>
+    </ul>
+  
+</div>
+
+      </div>
+      <div id="share-options-bar" class="share-options-bar" data-behavior="4">
+  <i id="btn-close-shareoptions" class="fa fa-close"></i>
+  <ul class="share-options">
+    
+      <li class="share-option">
+        <a class="share-option-btn" target="new" href="https://www.facebook.com/sharer/sharer.php?u=%2F2017%2F10%2Fceleryrabbitmq%2F">
+          <i class="fa fa-facebook-official"></i><span>分享到 Facebook</span>
+        </a>
+      </li>
+    
+      <li class="share-option">
+        <a class="share-option-btn" target="new" href="https://twitter.com/intent/tweet?text=%2F2017%2F10%2Fceleryrabbitmq%2F">
+          <i class="fa fa-twitter"></i><span>分享到 Twitter</span>
+        </a>
+      </li>
+    
+      <li class="share-option">
+        <a class="share-option-btn" target="new" href="https://plus.google.com/share?url=%2F2017%2F10%2Fceleryrabbitmq%2F">
+          <i class="fa fa-google-plus"></i><span>分享到 Google&#43;</span>
+        </a>
+      </li>
+    
+  </ul>
+</div>
+<div id="share-options-mask" class="share-options-mask"></div>
+    </div>
+    
+    <div id="about">
+  <div id="about-card">
+    <div id="about-btn-close">
+      <i class="fa fa-remove"></i>
+    </div>
+    
+      <img id="about-card-picture" src="https://www.gravatar.com/avatar/d09dc2d7aa5c467519e8af89f7b3d94c?s=110" alt="作者的图片" />
+    
+    <h4 id="about-card-name">SuJiankang</h4>
+    
+      <div id="about-card-bio"><strong>自古英雄出炼狱 从来富贵入凡尘</strong></div>
+    
+    
+      <div id="about-card-job">
+        <i class="fa fa-briefcase"></i>
+        <br/>
+        Your job title
+      </div>
+    
+    
+      <div id="about-card-location">
+        <i class="fa fa-map-marker"></i>
+        <br/>
+        France
+      </div>
+    
+  </div>
+</div>
+
+    
+
+    
+  
+    
+      <div id="cover" style="background-image:url('/images/cover.jpg');"></div>
+    
+  
+
+
+    
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.4/jquery.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js" integrity="sha256-/BfiIkHlHoVihZdc6TFuj7MmJ0TWcWsMXkeDFwhi0zw=" crossorigin="anonymous"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.7/js/jquery.fancybox.min.js" integrity="sha256-GEAnjcTqVP+vBp3SSc8bEDQqvWAZMiHyUSIorrWwH50=" crossorigin="anonymous"></script>
+
+
+<script src="/js/script-pcw6v3xilnxydl1vddzazdverrnn9ctynvnxgwho987mfyqkuylcb1nlt.min.js"></script>
+
+
+<script lang="javascript">
+window.onload = updateMinWidth;
+window.onresize = updateMinWidth;
+document.getElementById("sidebar").addEventListener("transitionend", updateMinWidth);
+function updateMinWidth() {
+  var sidebar = document.getElementById("sidebar");
+  var main = document.getElementById("main");
+  main.style.minWidth = "";
+  var w1 = getComputedStyle(main).getPropertyValue("min-width");
+  var w2 = getComputedStyle(sidebar).getPropertyValue("width");
+  var w3 = getComputedStyle(sidebar).getPropertyValue("left");
+  main.style.minWidth = `calc(${w1} - ${w2} - ${w3})`;
+}
+</script>
+
+<script>
+$(document).ready(function() {
+  hljs.configure({ classPrefix: '', useBR: false });
+  $('pre.code-highlight > code, pre > code').each(function(i, block) {
+    if (!$(this).hasClass('codeblock')) {
+      $(this).addClass('codeblock');
+    }
+    hljs.highlightBlock(block);
+  });
+});
+</script>
+
+
+  
+    
+      <script>
+        var disqus_config = function () {
+          this.page.url = '\/2017\/10\/celeryrabbitmq\/';
+          
+            this.page.identifier = '\/2017\/10\/celeryrabbitmq\/'
+          
+        };
+        (function() {
+          
+          
+          if (window.location.hostname == "localhost") {
+            return;
+          }
+          var d = document, s = d.createElement('script');
+          var disqus_shortname = 'hugo-tranquilpeak-theme';
+          s.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+
+          s.setAttribute('data-timestamp', +new Date());
+          (d.head || d.body).appendChild(s);
+        })();
+      </script>
+    
+  
+
+
+
+
+    
+  </body>
+</html>
+

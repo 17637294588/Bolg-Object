@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>vue on HOME</title>
+    <link>/categories/vue/</link>
+    <description>Recent content in vue on HOME</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Fri, 15 Mar 2019 00:00:00 +0000</lastBuildDate>
+    
+	<atom:link href="/categories/vue/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>xterm.js &#43; Paramiko实现Linux command界面</title>
+      <link>/2019/03/xterm.js-paramiko%E5%AE%9E%E7%8E%B0linux-command%E7%95%8C%E9%9D%A2/</link>
+      <pubDate>Fri, 15 Mar 2019 00:00:00 +0000</pubDate>
+      
+      <guid>/2019/03/xterm.js-paramiko%E5%AE%9E%E7%8E%B0linux-command%E7%95%8C%E9%9D%A2/</guid>
+      <description>vue + xterm.js &amp;amp; Django + Paramiko实现Linux command界面  实现逻辑：
+ 利用 xterm.js 在 vue组件实现终端样式 利用 Paramiko 实现Django 和 linux 数据交互 使用 websocket 实现场链接  django 作为中间桥梁实现 vue 和 linux 的数据交互
+  首先 vue 安装xterm  cnpm i xterm --save   在 main.js 中加入  # 加入样式 import &#39;xterm/dist/xterm.css&#39;   创建 Console.vue  &amp;lt;template&amp;gt; &amp;lt;div&amp;gt; &amp;lt;div class=&amp;quot;console&amp;quot; id=&amp;quot;terminal&amp;quot;&amp;gt;&amp;lt;/div&amp;gt; &amp;lt;/div&amp;gt; &amp;lt;/template&amp;gt; &amp;lt;script&amp;gt; import { Terminal } from &#39;xterm&#39; import * as fit from &#39;xterm/lib/addons/fit/fit&#39; import * as attach from &#39;xterm/lib/addons/attach/attach&#39; Terminal.</description>
+    </item>
+    
+  </channel>
+</rss>

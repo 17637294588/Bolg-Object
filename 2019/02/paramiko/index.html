@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    
+    <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="generator" content="Hugo 0.55.6 with theme Tranquilpeak 0.4.3-SNAPSHOT">
+<meta name="author" content="SuJiankang">
+<meta name="keywords" content=", categories, tags">
+<meta name="description" content="Paramiko  Paramiko是SSHv2协议的Python实现，提供客户端和服务器功能
+Paramiko本身是一个围绕SSH网络概念的纯Python接口
+利用paramiko我们可以通过Python方便的进行linux操作
+paramiko包含两个核心组件：SSHClient和SFTPClient
+ SSHClient  SSHClient的作用类似于Linux的ssh命令，是对SSH会话的封装
+该类封装了传输Transport，通道Channel及SFTPClient建立的方法open_sftp，通常用于执行远程命令
+ API  引入模块  import paramiko   创建SSH客户端实例  SSHClient.connect(hostname, port=22, username=None, password=None, pkey=None, key_filename=None, timeout=None, allow_agent=True, look_for_keys=True, compress=False..)  # 参数解释 - hostname：连接的目标主机 - port=SSH_PORT：指定端口 - username=None：验证的用户名 - password=None：验证的用户密码 - pkey=None：私钥方式用于身份验证 - key_filename=None：一个文件名或文件列表，指定私钥文件 - timeout=None：可选的tcp连接超时时间 - allow_agent=True：是否允许连接到ssh代理，默认为True 允许 - look_for_keys=True：是否在~/.ssh中搜索私钥文件，默认为True 允许 - compress=False：是否打开压缩   两种连接远程服务端返回数据类型
+ exec_command  SSHClient.exec_command(command, bufsize=-1, timeout=None, get_pty=False, environment=None)  # 参数解释 - command：要执行的命令 - bufsize：与Python中文件对象的同名函数解释相同，缓冲区大小 - timeout：设置命令的超时相应事件 - get_pty：从服务器请求一个伪终端（默认为假） - environment：一个当前shell环境的字典，远程命令的默认执行环境   command参数为要执行的shell命令，打开一个新通道并执行请求的命令">
+
+
+<meta property="og:description" content="Paramiko  Paramiko是SSHv2协议的Python实现，提供客户端和服务器功能
+Paramiko本身是一个围绕SSH网络概念的纯Python接口
+利用paramiko我们可以通过Python方便的进行linux操作
+paramiko包含两个核心组件：SSHClient和SFTPClient
+ SSHClient  SSHClient的作用类似于Linux的ssh命令，是对SSH会话的封装
+该类封装了传输Transport，通道Channel及SFTPClient建立的方法open_sftp，通常用于执行远程命令
+ API  引入模块  import paramiko   创建SSH客户端实例  SSHClient.connect(hostname, port=22, username=None, password=None, pkey=None, key_filename=None, timeout=None, allow_agent=True, look_for_keys=True, compress=False..)  # 参数解释 - hostname：连接的目标主机 - port=SSH_PORT：指定端口 - username=None：验证的用户名 - password=None：验证的用户密码 - pkey=None：私钥方式用于身份验证 - key_filename=None：一个文件名或文件列表，指定私钥文件 - timeout=None：可选的tcp连接超时时间 - allow_agent=True：是否允许连接到ssh代理，默认为True 允许 - look_for_keys=True：是否在~/.ssh中搜索私钥文件，默认为True 允许 - compress=False：是否打开压缩   两种连接远程服务端返回数据类型
+ exec_command  SSHClient.exec_command(command, bufsize=-1, timeout=None, get_pty=False, environment=None)  # 参数解释 - command：要执行的命令 - bufsize：与Python中文件对象的同名函数解释相同，缓冲区大小 - timeout：设置命令的超时相应事件 - get_pty：从服务器请求一个伪终端（默认为假） - environment：一个当前shell环境的字典，远程命令的默认执行环境   command参数为要执行的shell命令，打开一个新通道并执行请求的命令">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Paramiko">
+<meta name="twitter:title" content="Paramiko">
+<meta property="og:url" content="/2019/02/paramiko/">
+<meta property="twitter:url" content="/2019/02/paramiko/">
+<meta property="og:site_name" content="HOME">
+<meta property="og:description" content="Paramiko  Paramiko是SSHv2协议的Python实现，提供客户端和服务器功能
+Paramiko本身是一个围绕SSH网络概念的纯Python接口
+利用paramiko我们可以通过Python方便的进行linux操作
+paramiko包含两个核心组件：SSHClient和SFTPClient
+ SSHClient  SSHClient的作用类似于Linux的ssh命令，是对SSH会话的封装
+该类封装了传输Transport，通道Channel及SFTPClient建立的方法open_sftp，通常用于执行远程命令
+ API  引入模块  import paramiko   创建SSH客户端实例  SSHClient.connect(hostname, port=22, username=None, password=None, pkey=None, key_filename=None, timeout=None, allow_agent=True, look_for_keys=True, compress=False..)  # 参数解释 - hostname：连接的目标主机 - port=SSH_PORT：指定端口 - username=None：验证的用户名 - password=None：验证的用户密码 - pkey=None：私钥方式用于身份验证 - key_filename=None：一个文件名或文件列表，指定私钥文件 - timeout=None：可选的tcp连接超时时间 - allow_agent=True：是否允许连接到ssh代理，默认为True 允许 - look_for_keys=True：是否在~/.ssh中搜索私钥文件，默认为True 允许 - compress=False：是否打开压缩   两种连接远程服务端返回数据类型
+ exec_command  SSHClient.exec_command(command, bufsize=-1, timeout=None, get_pty=False, environment=None)  # 参数解释 - command：要执行的命令 - bufsize：与Python中文件对象的同名函数解释相同，缓冲区大小 - timeout：设置命令的超时相应事件 - get_pty：从服务器请求一个伪终端（默认为假） - environment：一个当前shell环境的字典，远程命令的默认执行环境   command参数为要执行的shell命令，打开一个新通道并执行请求的命令">
+<meta name="twitter:description" content="Paramiko  Paramiko是SSHv2协议的Python实现，提供客户端和服务器功能
+Paramiko本身是一个围绕SSH网络概念的纯Python接口
+利用paramiko我们可以通过Python方便的进行linux操作
+paramiko包含两个核心组件：SSHClient和SFTPClient
+ SSHClient  SSHClient的作用类似于Linux的ssh命令，是对SSH会话的封装
+该类封装了传输Transport，通道Channel及SFTPClient建立的方法open_sftp，通常用于执行远程命令
+ API  引入模块  import paramiko   创建SSH客户端实例  SSHClient.connect(hostname, port=22, username=None, password=None, pkey=None, key_filename=None, timeout=None, allow_agent=True, look_for_keys=True, compress=False..)  # 参数解释 - hostname：连接的目标主机 - port=SSH_PORT：指定端口 - username=None：验证的用户名 - password=None：验证的用户密码 - pkey=None：私钥方式用于身份验证 - key_filename=None：一个文件名或文件列表，指定私钥文件 - timeout=None：可选的tcp连接超时时间 - allow_agent=True：是否允许连接到ssh代理，默认为True 允许 - look_for_keys=True：是否在~/.ssh中搜索私钥文件，默认为True 允许 - compress=False：是否打开压缩   两种连接远程服务端返回数据类型
+ exec_command  SSHClient.exec_command(command, bufsize=-1, timeout=None, get_pty=False, environment=None)  # 参数解释 - command：要执行的命令 - bufsize：与Python中文件对象的同名函数解释相同，缓冲区大小 - timeout：设置命令的超时相应事件 - get_pty：从服务器请求一个伪终端（默认为假） - environment：一个当前shell环境的字典，远程命令的默认执行环境   command参数为要执行的shell命令，打开一个新通道并执行请求的命令">
+<meta property="og:locale" content="zh-cn">
+
+  
+    <meta property="article:published_time" content="2019-02-05T00:00:00">
+  
+  
+    <meta property="article:modified_time" content="2019-02-05T00:00:00">
+  
+  
+  
+    
+      <meta property="article:section" content="Linux">
+    
+      <meta property="article:section" content="features">
+    
+  
+  
+    
+      <meta property="article:tag" content="Paramiko">
+    
+  
+
+
+<meta name="twitter:card" content="summary">
+
+
+
+
+
+
+
+  <meta property="og:image" content="//d1u9biwaxjngwg.cloudfront.net/cover-image-showcase/city-750.jpg">
+  <meta property="twitter:image" content="//d1u9biwaxjngwg.cloudfront.net/cover-image-showcase/city-750.jpg">
+
+
+  <meta property="og:image" content="//d1u9biwaxjngwg.cloudfront.net/cover-image-showcase/city.jpg">
+  <meta property="twitter:image" content="//d1u9biwaxjngwg.cloudfront.net/cover-image-showcase/city.jpg">
+
+
+
+
+  <meta property="og:image" content="https://www.gravatar.com/avatar/d09dc2d7aa5c467519e8af89f7b3d94c?s=640">
+  <meta property="twitter:image" content="https://www.gravatar.com/avatar/d09dc2d7aa5c467519e8af89f7b3d94c?s=640">
+
+
+    <title>Paramiko</title>
+
+    <link rel="icon" href="/favicon.png">
+    
+
+    
+
+    <link rel="canonical" href="/2019/02/paramiko/">
+
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha256-eZrrJcwDc/3uDhsdt61sL2oOBY362qM3lon1gyExkL0=" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.4/jquery.fancybox.min.css" integrity="sha256-vuXZ9LGmmwtjqFX1F+EKin1ThZMub58gKULUyf0qECk=" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.4/helpers/jquery.fancybox-thumbs.min.css" integrity="sha256-SEa4XYAHihTcEP1f5gARTB2K26Uk8PsndQYHQC1f4jU=" crossorigin="anonymous" />
+    
+    
+    <link rel="stylesheet" href="/css/style-twzjdbqhmnnacqs0pwwdzcdbt8yhv8giawvjqjmyfoqnvazl0dalmnhdkvp7.min.css" />
+    
+    
+
+    
+      
+    
+    
+  </head>
+
+  <body>
+    <div id="blog">
+      <header id="header" data-behavior="4">
+  <i id="btn-open-sidebar" class="fa fa-lg fa-bars"></i>
+  <div class="header-title">
+    <a class="header-title-link" href="/">HOME</a>
+  </div>
+  
+    
+      <a class="header-right-picture "
+         href="/#about">
+    
+    
+    
+      
+        <img class="header-picture" src="https://www.gravatar.com/avatar/d09dc2d7aa5c467519e8af89f7b3d94c?s=90" alt="作者的图片" />
+      
+    
+    </a>
+  
+</header>
+
+      <nav id="sidebar" data-behavior="4">
+  <div class="sidebar-container">
+    
+      <div class="sidebar-profile">
+        <a href="/#about">
+          <img class="sidebar-profile-picture" src="https://www.gravatar.com/avatar/d09dc2d7aa5c467519e8af89f7b3d94c?s=110" alt="作者的图片" />
+        </a>
+        <h4 class="sidebar-profile-name">SuJiankang</h4>
+        
+          <h5 class="sidebar-profile-bio"><strong>自古英雄出炼狱 从来富贵入凡尘</strong></h5>
+        
+      </div>
+    
+    <ul class="sidebar-buttons">
+      
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="/">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-home"></i>
+      
+      <span class="sidebar-button-desc">首页</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="/categories">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-bookmark"></i>
+      
+      <span class="sidebar-button-desc">分类</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="/tags">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-tags"></i>
+      
+      <span class="sidebar-button-desc">标签</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="/archives">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-archive"></i>
+      
+      <span class="sidebar-button-desc">归档</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="/#about">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-question"></i>
+      
+      <span class="sidebar-button-desc">关于</span>
+    </a>
+  </li>
+
+
+    </ul>
+    <ul class="sidebar-buttons">
+      
+
+    </ul>
+    <ul class="sidebar-buttons">
+      
+
+    </ul>
+  </div>
+</nav>
+
+      
+  <div class="post-header-cover
+              text-center
+              "
+       style="background-image:url('//d1u9biwaxjngwg.cloudfront.net/cover-image-showcase/city.jpg')"
+       data-behavior="4">
+    
+  </div>
+
+
+      <div id="main" data-behavior="4"
+        class="hasCover
+               hasCoverMetaOut
+               ">
+        <article class="post" itemscope itemType="http://schema.org/BlogPosting">
+          
+          
+            <div class="post-header main-content-wrap text-center">
+  
+    <h1 class="post-title" itemprop="headline">
+      Paramiko
+    </h1>
+  
+  
+  <div class="postShorten-meta post-meta">
+    
+      <time itemprop="datePublished" datetime="2019-02-05T00:00:00Z">
+        
+  二月 5, 2019
+
+      </time>
+    
+    
+  
+  
+    <span>发布在</span>
+    
+      <a class="category-link" href="/categories/linux">Linux</a>, 
+    
+      <a class="category-link" href="/categories/features">features</a>
+    
+  
+
+  </div>
+
+</div>
+          
+          <div class="post-content markdown" itemprop="articleBody">
+            <div class="main-content-wrap">
+              
+
+<h1 id="paramiko">Paramiko</h1>
+
+<blockquote>
+<p><code>Paramiko</code>是<code>SSHv2</code>协议的<code>Python</code>实现，提供客户端和服务器功能</p>
+
+<p><code>Paramiko</code>本身是一个围绕<code>SSH</code>网络概念的纯<code>Python</code>接口</p>
+
+<p>利用<code>paramiko</code>我们可以通过<code>Python</code>方便的进行<code>linux</code>操作</p>
+
+<p><code>paramiko</code>包含两个核心组件：<code>SSHClient</code>和<code>SFTPClient</code></p>
+</blockquote>
+
+<h2 id="sshclient">SSHClient</h2>
+
+<blockquote>
+<p><code>SSHClient</code>的作用类似于<code>Linux</code>的<code>ssh</code>命令，是对<code>SSH</code>会话的封装</p>
+
+<p>该类封装了传输<code>Transport</code>，通道<code>Channel</code>及<code>SFTPClient</code>建立的方法<code>open_sftp</code>，通常用于执行远程命令</p>
+</blockquote>
+
+<h3 id="api">API</h3>
+
+<ul>
+<li>引入模块</li>
+</ul>
+
+<pre><code class="language-python">  import paramiko
+</code></pre>
+
+<ul>
+<li>创建<code>SSH</code>客户端实例</li>
+</ul>
+
+<pre><code class="language-python">  SSHClient.connect(hostname, port=22, username=None, password=None, pkey=None, key_filename=None, timeout=None, allow_agent=True, look_for_keys=True, compress=False..)
+</code></pre>
+
+<pre><code class="language-python">  # 参数解释
+  - hostname：连接的目标主机
+  - port=SSH_PORT：指定端口
+  - username=None：验证的用户名
+  - password=None：验证的用户密码
+  - pkey=None：私钥方式用于身份验证
+  - key_filename=None：一个文件名或文件列表，指定私钥文件
+  - timeout=None：可选的tcp连接超时时间
+  - allow_agent=True：是否允许连接到ssh代理，默认为True 允许
+  - look_for_keys=True：是否在~/.ssh中搜索私钥文件，默认为True 允许
+  - compress=False：是否打开压缩
+</code></pre>
+
+<ul>
+<li><p>两种连接远程服务端返回数据类型</p>
+
+<ul>
+<li>exec_command</li>
+</ul>
+
+<pre><code class="language-python">SSHClient.exec_command(command, bufsize=-1, timeout=None, get_pty=False, environment=None)
+</code></pre>
+
+<pre><code class="language-python"># 参数解释
+- command：要执行的命令
+- bufsize：与Python中文件对象的同名函数解释相同，缓冲区大小
+- timeout：设置命令的超时相应事件
+- get_pty：从服务器请求一个伪终端（默认为假）
+- environment：一个当前shell环境的字典，远程命令的默认执行环境
+</code></pre>
+
+<blockquote>
+<p><code>command</code>参数为要执行的<code>shell</code>命令，打开一个新通道并执行请求的命令</p>
+
+<p>该函数的返回结果为一个元组，其中包含<code>stdin</code>、<code>stdout</code>和<code>stderr</code>，也就是我们常见的标准输入，输出以及出错</p>
+
+<p>一般来说，命令的结果我们将通过<code>stdout</code>进行获取</p>
+</blockquote>
+
+<ul>
+<li>关闭SSH连接</li>
+</ul>
+
+<pre><code class="language-python">SSHClient.close()
+</code></pre>
+
+<ul>
+<li>invoke_shell</li>
+</ul>
+
+<pre><code class="language-python">SSHClient.invoke_shell(term=’vt100’, width=80, height=24, width_pixels=0, height_pixels=0, environment=None)
+</code></pre>
+
+<pre><code class="language-python"># 参数解释
+- term：模拟终端类型
+- width：终端长度
+- height：终端宽度
+- width_pixels：终端的像素宽度
+- height_pixels：终端的像素高度
+- environment：命令的shell环境
+</code></pre>
+
+<blockquote>
+<p>term：可以更改终端类型，可以返回有样式的数据，下面的代码示例中有提到</p>
+
+<p>在<code>ssh</code>服务器上启动交互式<code>shell</code>会话</p>
+
+<p>一个新的通道被打开并连接到，使用请求的终端类型和大小的伪终端，并作为返回值</p>
+
+<p>换句通俗的话来讲，就是创建了一个实际的<code>shell</code>窗口空间进行命令交互</p>
+</blockquote>
+
+<pre><code class="language-python">SSHClient.set_missing_host_key_policy(policy)
+</code></pre>
+
+<blockquote>
+<p>设置连接到没有已知主机密钥的服务器时要使用的策略</p>
+
+<p>常见使用策略为<code>paramiko.client.AutoAddPolicy</code>，其意义为自动将主机名和新主机密钥添加到本地主机密钥对象并保存</p>
+</blockquote>
+
+<h2 id="代码示例">代码示例</h2>
+
+<ul>
+<li>exec_command 简单代码示例</li>
+</ul>
+
+<pre><code class="language-python">  import paramiko 
+      
+  def connect(hostname,username,password):
+    client = paramiko.SSHClient() 
+      # 初始化
+    client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+      # 设置密钥策略
+    client.connect(hostname,username=username,password=password)
+      # 连接主机
+    return client
+      
+  def exec_cmd(client,cmd):
+    stdin,stdout,stderr = client.exec_command(cmd)
+    return stdout.read().decode(),stderr.read().decode()
+      
+  def main():
+    hostname = '192.168.0.104'
+    username = 'pi'
+    password = '123456'
+    cmd = 'ps -aux'
+      
+    client = connect(hostname,username,password)
+    res = exec_cmd(client, cmd)
+    if res[0]:
+        print(res[0])
+    if res[1]:
+        print('[E]:\n',res[1])
+    client.close()
+          
+  if __name__ == '__main__':
+    main()
+</code></pre>
+
+<blockquote>
+<p>上面的代码通过默认建立好的连接对象进行命令的传输以及返回结果的获取</p>
+</blockquote>
+
+<ul>
+<li>#### invoke_shell代码示例</li>
+</ul>
+
+<blockquote>
+<p>接下来使用<code>invoke_shell</code>进行虚拟终端的连接，首先初始化<code>SSH</code>通道</p>
+</blockquote>
+
+<pre><code class="language-python">  import paramiko
+  import threading
+  import time
+  import sys
+  class SSHChannle(object):
+      def __init__(self, host, username, password, port=22):
+          '''
+              初始化SSH通道
+          '''
+          self.sh = paramiko.SSHClient()
+          self.sh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+          self.sh.connect(host, username=username, password=password)
+          self.channle = self.sh.invoke_shell()
+          self.cmd = ''
+</code></pre>
+
+<ul>
+<li>思路为开启两个线程，分别负责命令的接收与命令的发送</li>
+</ul>
+
+<pre><code class="language-python">  # 此线程专门做从 ssh 服务端读取数据发送给前端
+  def get_ssh_recv(self):
+          '''
+              接收SSH通道中发来的消息
+          '''
+          while not self.channle.exit_status_ready():
+              # 如果远程进程已退出并返回退出状态，则返回true
+              time.sleep(0.1)
+              try:
+                  buf = self.channle.recv(1024).decode('utf-8')
+                  print(buf,end='')
+              except Exception as ex:
+                  print(ex)
+              sys.stdout.flush()
+</code></pre>
+
+<pre><code class="language-python">  # 此线程专门做给 ssh 发送命令
+  def send_ssh_cmd(self):
+          '''
+              发送命令给SSH通道
+          '''
+          while not self.channle.exit_status_ready():
+              self.cmd = input()
+              try:
+                  self.channle.send(self.cmd + '\r')
+              except Exception as ex:
+                  print(ex)
+</code></pre>
+
+<pre><code class="language-python">  # run 方法为主要启动方法
+  def run(self):
+      ssh_recv_thread = threading.Thread(target=self.get_ssh_recv)
+      ssh_send_thread = threading.Thread(target=self.send_ssh_cmd)
+      ssh_recv_thread.start()
+      ssh_send_thread.start()
+      
+      ssh_recv_thread.join()
+      ssh_send_thread.join()
+      
+      self.sh.close()  # 关闭通道
+</code></pre>
+
+<pre><code class="language-python">  if __name__ == &quot;__main__&quot;:
+      s = SSHChannle('公网ip号','root','密码')
+      s.run()
+</code></pre>
+
+<blockquote>
+<p>在终端运行此 py 文件 , 输入命令查看返回结果</p>
+
+<p>在<code>win</code>下的<code>CMD</code>中查看效果，其中的乱码格式其实为连接后命令传输的特殊标记格式，可以在后面结合前端中类似<code>xterm.js</code>等插件查看到实际花里胡哨的效果</p>
+</blockquote>
+
+<p><img src="/images/win_ssh_demo.png" alt="" /></p></li>
+</ul>
+
+              
+            </div>
+          </div>
+          <div id="post-footer" class="post-footer main-content-wrap">
+            
+              
+                
+                
+                  <div class="post-footer-tags">
+                    <span class="text-color-light text-small">标签</span><br/>
+                    
+  <a class="tag tag--primary tag--small" href="/tags/paramiko/">Paramiko</a>
+
+                  </div>
+                
+              
+            
+            <div class="post-actions-wrap">
+  
+      <nav >
+        <ul class="post-actions post-action-nav">
+          
+            <li class="post-action">
+              
+                <a class="post-action-btn btn btn--default tooltip--top" href="/2019/02/ansible%E6%89%B9%E9%87%8F%E8%BF%90%E7%BB%B4/" data-tooltip="Ansible批量运维">
+              
+                  <i class="fa fa-angle-left"></i>
+                  <span class="hide-xs hide-sm text-small icon-ml">下一篇</span>
+                </a>
+            </li>
+            <li class="post-action">
+              
+                <a class="post-action-btn btn btn--default tooltip--top" href="/2017/10/celeryrabbitmq/" data-tooltip="celery&amp;rabbitmq">
+              
+                  <span class="hide-xs hide-sm text-small icon-mr">上一篇</span>
+                  <i class="fa fa-angle-right"></i>
+                </a>
+            </li>
+          
+        </ul>
+      </nav>
+    <ul class="post-actions post-action-share" >
+      
+        <li class="post-action hide-lg hide-md hide-sm">
+          <a class="post-action-btn btn btn--default btn-open-shareoptions" href="#btn-open-shareoptions">
+            <i class="fa fa-share-alt"></i>
+          </a>
+        </li>
+        
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://www.facebook.com/sharer/sharer.php?u=/2019/02/paramiko/">
+              <i class="fa fa-facebook-official"></i>
+            </a>
+          </li>
+        
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://twitter.com/intent/tweet?text=/2019/02/paramiko/">
+              <i class="fa fa-twitter"></i>
+            </a>
+          </li>
+        
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://plus.google.com/share?url=/2019/02/paramiko/">
+              <i class="fa fa-google-plus"></i>
+            </a>
+          </li>
+        
+      
+      
+        <li class="post-action">
+          <a class="post-action-btn btn btn--default" href="#disqus_thread">
+            <i class="fa fa-comment-o"></i>
+          </a>
+        </li>
+      
+      <li class="post-action">
+        
+          <a class="post-action-btn btn btn--default" href="#">
+        
+          <i class="fa fa-list"></i>
+        </a>
+      </li>
+    </ul>
+  
+</div>
+
+            
+              
+                <div id="disqus_thread">
+  <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+              
+            
+          </div>
+        </article>
+        <footer id="footer" class="main-content-wrap">
+  <span class="copyrights">
+    &copy; 2019 SuJiankang. All Rights Reserved
+  </span>
+</footer>
+
+      </div>
+      <div id="bottom-bar" class="post-bottom-bar" data-behavior="4">
+        <div class="post-actions-wrap">
+  
+      <nav >
+        <ul class="post-actions post-action-nav">
+          
+            <li class="post-action">
+              
+                <a class="post-action-btn btn btn--default tooltip--top" href="/2019/02/ansible%E6%89%B9%E9%87%8F%E8%BF%90%E7%BB%B4/" data-tooltip="Ansible批量运维">
+              
+                  <i class="fa fa-angle-left"></i>
+                  <span class="hide-xs hide-sm text-small icon-ml">下一篇</span>
+                </a>
+            </li>
+            <li class="post-action">
+              
+                <a class="post-action-btn btn btn--default tooltip--top" href="/2017/10/celeryrabbitmq/" data-tooltip="celery&amp;rabbitmq">
+              
+                  <span class="hide-xs hide-sm text-small icon-mr">上一篇</span>
+                  <i class="fa fa-angle-right"></i>
+                </a>
+            </li>
+          
+        </ul>
+      </nav>
+    <ul class="post-actions post-action-share" >
+      
+        <li class="post-action hide-lg hide-md hide-sm">
+          <a class="post-action-btn btn btn--default btn-open-shareoptions" href="#btn-open-shareoptions">
+            <i class="fa fa-share-alt"></i>
+          </a>
+        </li>
+        
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://www.facebook.com/sharer/sharer.php?u=/2019/02/paramiko/">
+              <i class="fa fa-facebook-official"></i>
+            </a>
+          </li>
+        
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://twitter.com/intent/tweet?text=/2019/02/paramiko/">
+              <i class="fa fa-twitter"></i>
+            </a>
+          </li>
+        
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://plus.google.com/share?url=/2019/02/paramiko/">
+              <i class="fa fa-google-plus"></i>
+            </a>
+          </li>
+        
+      
+      
+        <li class="post-action">
+          <a class="post-action-btn btn btn--default" href="#disqus_thread">
+            <i class="fa fa-comment-o"></i>
+          </a>
+        </li>
+      
+      <li class="post-action">
+        
+          <a class="post-action-btn btn btn--default" href="#">
+        
+          <i class="fa fa-list"></i>
+        </a>
+      </li>
+    </ul>
+  
+</div>
+
+      </div>
+      <div id="share-options-bar" class="share-options-bar" data-behavior="4">
+  <i id="btn-close-shareoptions" class="fa fa-close"></i>
+  <ul class="share-options">
+    
+      <li class="share-option">
+        <a class="share-option-btn" target="new" href="https://www.facebook.com/sharer/sharer.php?u=%2F2019%2F02%2Fparamiko%2F">
+          <i class="fa fa-facebook-official"></i><span>分享到 Facebook</span>
+        </a>
+      </li>
+    
+      <li class="share-option">
+        <a class="share-option-btn" target="new" href="https://twitter.com/intent/tweet?text=%2F2019%2F02%2Fparamiko%2F">
+          <i class="fa fa-twitter"></i><span>分享到 Twitter</span>
+        </a>
+      </li>
+    
+      <li class="share-option">
+        <a class="share-option-btn" target="new" href="https://plus.google.com/share?url=%2F2019%2F02%2Fparamiko%2F">
+          <i class="fa fa-google-plus"></i><span>分享到 Google&#43;</span>
+        </a>
+      </li>
+    
+  </ul>
+</div>
+<div id="share-options-mask" class="share-options-mask"></div>
+    </div>
+    
+    <div id="about">
+  <div id="about-card">
+    <div id="about-btn-close">
+      <i class="fa fa-remove"></i>
+    </div>
+    
+      <img id="about-card-picture" src="https://www.gravatar.com/avatar/d09dc2d7aa5c467519e8af89f7b3d94c?s=110" alt="作者的图片" />
+    
+    <h4 id="about-card-name">SuJiankang</h4>
+    
+      <div id="about-card-bio"><strong>自古英雄出炼狱 从来富贵入凡尘</strong></div>
+    
+    
+      <div id="about-card-job">
+        <i class="fa fa-briefcase"></i>
+        <br/>
+        Your job title
+      </div>
+    
+    
+      <div id="about-card-location">
+        <i class="fa fa-map-marker"></i>
+        <br/>
+        France
+      </div>
+    
+  </div>
+</div>
+
+    
+
+    
+  
+    
+      <div id="cover" style="background-image:url('/images/cover.jpg');"></div>
+    
+  
+
+
+    
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.4/jquery.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js" integrity="sha256-/BfiIkHlHoVihZdc6TFuj7MmJ0TWcWsMXkeDFwhi0zw=" crossorigin="anonymous"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.7/js/jquery.fancybox.min.js" integrity="sha256-GEAnjcTqVP+vBp3SSc8bEDQqvWAZMiHyUSIorrWwH50=" crossorigin="anonymous"></script>
+
+
+<script src="/js/script-pcw6v3xilnxydl1vddzazdverrnn9ctynvnxgwho987mfyqkuylcb1nlt.min.js"></script>
+
+
+<script lang="javascript">
+window.onload = updateMinWidth;
+window.onresize = updateMinWidth;
+document.getElementById("sidebar").addEventListener("transitionend", updateMinWidth);
+function updateMinWidth() {
+  var sidebar = document.getElementById("sidebar");
+  var main = document.getElementById("main");
+  main.style.minWidth = "";
+  var w1 = getComputedStyle(main).getPropertyValue("min-width");
+  var w2 = getComputedStyle(sidebar).getPropertyValue("width");
+  var w3 = getComputedStyle(sidebar).getPropertyValue("left");
+  main.style.minWidth = `calc(${w1} - ${w2} - ${w3})`;
+}
+</script>
+
+<script>
+$(document).ready(function() {
+  hljs.configure({ classPrefix: '', useBR: false });
+  $('pre.code-highlight > code, pre > code').each(function(i, block) {
+    if (!$(this).hasClass('codeblock')) {
+      $(this).addClass('codeblock');
+    }
+    hljs.highlightBlock(block);
+  });
+});
+</script>
+
+
+  
+    
+      <script>
+        var disqus_config = function () {
+          this.page.url = '\/2019\/02\/paramiko\/';
+          
+            this.page.identifier = '\/2019\/02\/paramiko\/'
+          
+        };
+        (function() {
+          
+          
+          if (window.location.hostname == "localhost") {
+            return;
+          }
+          var d = document, s = d.createElement('script');
+          var disqus_shortname = 'hugo-tranquilpeak-theme';
+          s.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+
+          s.setAttribute('data-timestamp', +new Date());
+          (d.head || d.body).appendChild(s);
+        })();
+      </script>
+    
+  
+
+
+
+
+    
+  </body>
+</html>
+

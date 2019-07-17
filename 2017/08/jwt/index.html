@@ -1,0 +1,1071 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    
+    <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="generator" content="Hugo 0.55.6 with theme Tranquilpeak 0.4.3-SNAPSHOT">
+<meta name="author" content="SuJiankang">
+<meta name="keywords" content=", categories, tags">
+<meta name="description" content="Josn Web Token  JWT的跨域请求流程
+ 客户端向服务器发起用户认证请求 服务端认证通过会生成token返回客户端 客户端保存token，以后每次访问服务端都带着token 服务端验证客户端的token，认证通过才给予响应  JWT的数据结构
+ 实际的jwt大概就像下面这样   JWT包含三个部分
+ Header（头部）
+ Header 部分是一个 JSON 对象，描述 JWT 的元数据，通常是下面的样子。
+ { &quot;alg&quot;: &quot;HS256&quot;, &quot;typ&quot;: &quot;JWT&quot; }   alg属性表示签名的算法（algorithm），默认是 HMAC SHA256（写成 HS256）；typ属性表示这个令牌（token）的类型（type），JWT 令牌统一写为JWT。最后，将上面的 JSON 对象使用 Base64URL 算法转成字符串。
+ Payload（载荷）
+ Payload 部分也是一个 JSON 对象，用来存放实际需要传递的数据。JWT 规定了7个官方字段
+```
+   iss (issuer)：签发人 exp (expiration time)：过期时间 sub (subject)：主题 aud (audience)：受众 nbf (Not Before)：生效时间 iat (Issued At)：签发时间 jti (JWT ID)：编号">
+
+
+<meta property="og:description" content="Josn Web Token  JWT的跨域请求流程
+ 客户端向服务器发起用户认证请求 服务端认证通过会生成token返回客户端 客户端保存token，以后每次访问服务端都带着token 服务端验证客户端的token，认证通过才给予响应  JWT的数据结构
+ 实际的jwt大概就像下面这样   JWT包含三个部分
+ Header（头部）
+ Header 部分是一个 JSON 对象，描述 JWT 的元数据，通常是下面的样子。
+ { &quot;alg&quot;: &quot;HS256&quot;, &quot;typ&quot;: &quot;JWT&quot; }   alg属性表示签名的算法（algorithm），默认是 HMAC SHA256（写成 HS256）；typ属性表示这个令牌（token）的类型（type），JWT 令牌统一写为JWT。最后，将上面的 JSON 对象使用 Base64URL 算法转成字符串。
+ Payload（载荷）
+ Payload 部分也是一个 JSON 对象，用来存放实际需要传递的数据。JWT 规定了7个官方字段
+```
+   iss (issuer)：签发人 exp (expiration time)：过期时间 sub (subject)：主题 aud (audience)：受众 nbf (Not Before)：生效时间 iat (Issued At)：签发时间 jti (JWT ID)：编号">
+<meta property="og:type" content="article">
+<meta property="og:title" content="JWT">
+<meta name="twitter:title" content="JWT">
+<meta property="og:url" content="/2017/08/jwt/">
+<meta property="twitter:url" content="/2017/08/jwt/">
+<meta property="og:site_name" content="HOME">
+<meta property="og:description" content="Josn Web Token  JWT的跨域请求流程
+ 客户端向服务器发起用户认证请求 服务端认证通过会生成token返回客户端 客户端保存token，以后每次访问服务端都带着token 服务端验证客户端的token，认证通过才给予响应  JWT的数据结构
+ 实际的jwt大概就像下面这样   JWT包含三个部分
+ Header（头部）
+ Header 部分是一个 JSON 对象，描述 JWT 的元数据，通常是下面的样子。
+ { &quot;alg&quot;: &quot;HS256&quot;, &quot;typ&quot;: &quot;JWT&quot; }   alg属性表示签名的算法（algorithm），默认是 HMAC SHA256（写成 HS256）；typ属性表示这个令牌（token）的类型（type），JWT 令牌统一写为JWT。最后，将上面的 JSON 对象使用 Base64URL 算法转成字符串。
+ Payload（载荷）
+ Payload 部分也是一个 JSON 对象，用来存放实际需要传递的数据。JWT 规定了7个官方字段
+```
+   iss (issuer)：签发人 exp (expiration time)：过期时间 sub (subject)：主题 aud (audience)：受众 nbf (Not Before)：生效时间 iat (Issued At)：签发时间 jti (JWT ID)：编号">
+<meta name="twitter:description" content="Josn Web Token  JWT的跨域请求流程
+ 客户端向服务器发起用户认证请求 服务端认证通过会生成token返回客户端 客户端保存token，以后每次访问服务端都带着token 服务端验证客户端的token，认证通过才给予响应  JWT的数据结构
+ 实际的jwt大概就像下面这样   JWT包含三个部分
+ Header（头部）
+ Header 部分是一个 JSON 对象，描述 JWT 的元数据，通常是下面的样子。
+ { &quot;alg&quot;: &quot;HS256&quot;, &quot;typ&quot;: &quot;JWT&quot; }   alg属性表示签名的算法（algorithm），默认是 HMAC SHA256（写成 HS256）；typ属性表示这个令牌（token）的类型（type），JWT 令牌统一写为JWT。最后，将上面的 JSON 对象使用 Base64URL 算法转成字符串。
+ Payload（载荷）
+ Payload 部分也是一个 JSON 对象，用来存放实际需要传递的数据。JWT 规定了7个官方字段
+```
+   iss (issuer)：签发人 exp (expiration time)：过期时间 sub (subject)：主题 aud (audience)：受众 nbf (Not Before)：生效时间 iat (Issued At)：签发时间 jti (JWT ID)：编号">
+<meta property="og:locale" content="zh-cn">
+
+  
+    <meta property="article:published_time" content="2017-08-06T00:00:00">
+  
+  
+    <meta property="article:modified_time" content="2017-08-06T00:00:00">
+  
+  
+  
+    
+      <meta property="article:section" content="python">
+    
+      <meta property="article:section" content="features">
+    
+  
+  
+    
+      <meta property="article:tag" content="Django">
+    
+  
+
+
+<meta name="twitter:card" content="summary">
+
+
+
+
+
+
+
+  <meta property="og:image" content="//d1u9biwaxjngwg.cloudfront.net/cover-image-showcase/city-750.jpg">
+  <meta property="twitter:image" content="//d1u9biwaxjngwg.cloudfront.net/cover-image-showcase/city-750.jpg">
+
+
+  <meta property="og:image" content="//d1u9biwaxjngwg.cloudfront.net/cover-image-showcase/city.jpg">
+  <meta property="twitter:image" content="//d1u9biwaxjngwg.cloudfront.net/cover-image-showcase/city.jpg">
+
+
+
+
+  <meta property="og:image" content="https://www.gravatar.com/avatar/d09dc2d7aa5c467519e8af89f7b3d94c?s=640">
+  <meta property="twitter:image" content="https://www.gravatar.com/avatar/d09dc2d7aa5c467519e8af89f7b3d94c?s=640">
+
+
+    <title>JWT</title>
+
+    <link rel="icon" href="/favicon.png">
+    
+
+    
+
+    <link rel="canonical" href="/2017/08/jwt/">
+
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha256-eZrrJcwDc/3uDhsdt61sL2oOBY362qM3lon1gyExkL0=" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.4/jquery.fancybox.min.css" integrity="sha256-vuXZ9LGmmwtjqFX1F+EKin1ThZMub58gKULUyf0qECk=" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.4/helpers/jquery.fancybox-thumbs.min.css" integrity="sha256-SEa4XYAHihTcEP1f5gARTB2K26Uk8PsndQYHQC1f4jU=" crossorigin="anonymous" />
+    
+    
+    <link rel="stylesheet" href="/css/style-twzjdbqhmnnacqs0pwwdzcdbt8yhv8giawvjqjmyfoqnvazl0dalmnhdkvp7.min.css" />
+    
+    
+
+    
+      
+    
+    
+  </head>
+
+  <body>
+    <div id="blog">
+      <header id="header" data-behavior="4">
+  <i id="btn-open-sidebar" class="fa fa-lg fa-bars"></i>
+  <div class="header-title">
+    <a class="header-title-link" href="/">HOME</a>
+  </div>
+  
+    
+      <a class="header-right-picture "
+         href="/#about">
+    
+    
+    
+      
+        <img class="header-picture" src="https://www.gravatar.com/avatar/d09dc2d7aa5c467519e8af89f7b3d94c?s=90" alt="作者的图片" />
+      
+    
+    </a>
+  
+</header>
+
+      <nav id="sidebar" data-behavior="4">
+  <div class="sidebar-container">
+    
+      <div class="sidebar-profile">
+        <a href="/#about">
+          <img class="sidebar-profile-picture" src="https://www.gravatar.com/avatar/d09dc2d7aa5c467519e8af89f7b3d94c?s=110" alt="作者的图片" />
+        </a>
+        <h4 class="sidebar-profile-name">SuJiankang</h4>
+        
+          <h5 class="sidebar-profile-bio"><strong>自古英雄出炼狱 从来富贵入凡尘</strong></h5>
+        
+      </div>
+    
+    <ul class="sidebar-buttons">
+      
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="/">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-home"></i>
+      
+      <span class="sidebar-button-desc">首页</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="/categories">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-bookmark"></i>
+      
+      <span class="sidebar-button-desc">分类</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="/tags">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-tags"></i>
+      
+      <span class="sidebar-button-desc">标签</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="/archives">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-archive"></i>
+      
+      <span class="sidebar-button-desc">归档</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="/#about">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-question"></i>
+      
+      <span class="sidebar-button-desc">关于</span>
+    </a>
+  </li>
+
+
+    </ul>
+    <ul class="sidebar-buttons">
+      
+
+    </ul>
+    <ul class="sidebar-buttons">
+      
+
+    </ul>
+  </div>
+</nav>
+
+      
+  <div class="post-header-cover
+              text-center
+              "
+       style="background-image:url('//d1u9biwaxjngwg.cloudfront.net/cover-image-showcase/city.jpg')"
+       data-behavior="4">
+    
+  </div>
+
+
+      <div id="main" data-behavior="4"
+        class="hasCover
+               hasCoverMetaOut
+               ">
+        <article class="post" itemscope itemType="http://schema.org/BlogPosting">
+          
+          
+            <div class="post-header main-content-wrap text-center">
+  
+    <h1 class="post-title" itemprop="headline">
+      JWT
+    </h1>
+  
+  
+  <div class="postShorten-meta post-meta">
+    
+      <time itemprop="datePublished" datetime="2017-08-06T00:00:00Z">
+        
+  八月 6, 2017
+
+      </time>
+    
+    
+  
+  
+    <span>发布在</span>
+    
+      <a class="category-link" href="/categories/python">python</a>, 
+    
+      <a class="category-link" href="/categories/features">features</a>
+    
+  
+
+  </div>
+
+</div>
+          
+          <div class="post-content markdown" itemprop="articleBody">
+            <div class="main-content-wrap">
+              
+
+<h2 id="josn-web-token">Josn Web Token</h2>
+
+<ul>
+<li><p>JWT的跨域请求流程</p>
+
+<ol>
+<li>客户端向服务器发起用户认证请求</li>
+<li>服务端认证通过会生成token返回客户端</li>
+<li>客户端保存token，以后每次访问服务端都带着token</li>
+<li>服务端验证客户端的token，认证通过才给予响应</li>
+</ol></li>
+
+<li><p>JWT的数据结构</p>
+
+<ul>
+<li>实际的jwt大概就像下面这样</li>
+</ul>
+
+<p><img src="/images/bg2018072303.jpg" alt="" /></p></li>
+
+<li><p>JWT包含三个部分</p>
+
+<ul>
+<li><p>Header（头部）</p></li>
+
+<li><p>Header 部分是一个 JSON 对象，描述 JWT 的元数据，通常是下面的样子。</p></li>
+
+<li><pre><code class="language-python">{
+&quot;alg&quot;: &quot;HS256&quot;,
+&quot;typ&quot;: &quot;JWT&quot;
+}
+</code></pre>
+
+<ul>
+<li><p><code>alg</code>属性表示签名的算法（algorithm），默认是 HMAC SHA256（写成 HS256）；<code>typ</code>属性表示这个令牌（token）的类型（type），JWT 令牌统一写为<code>JWT</code>。最后，将上面的 JSON 对象使用 Base64URL 算法转成字符串。</p></li>
+
+<li><p>Payload（载荷）</p></li>
+
+<li><p>Payload 部分也是一个 JSON 对象，用来存放实际需要传递的数据。JWT 规定了7个官方字段</p>
+
+<p>```</p></li>
+</ul></li>
+</ul>
+
+<p>iss (issuer)：签发人
+  exp (expiration time)：过期时间
+  sub (subject)：主题
+  aud (audience)：受众
+  nbf (Not Before)：生效时间
+  iat (Issued At)：签发时间
+  jti (JWT ID)：编号</p>
+
+<pre><code>
+* 除了官方字段，你还可以在这个部分定义私有字段
+
+  ```python
+  {
+    &quot;sub&quot;: &quot;1234567890&quot;,
+    &quot;name&quot;: &quot;John Doe&quot;,
+    &quot;admin&quot;: true
+  }
+</code></pre>
+
+<ul>
+<li><p>JWT 默认是不加密的，任何人都可以读到，所以不要把秘密信息放在这个部分,这个 JSON 对象也要使用 Base64URL 算法转成字符串</p></li>
+
+<li><p>Signature（签证）</p></li>
+
+<li><p>Signature 部分是对前两部分的签名，防止数据篡改</p></li>
+
+<li><p>首先需要指定一个密钥（secret），这个密钥只有服务器知道，不能泄露给用户，然后，使用 Header 里面指定的签名算法（默认是 HMAC SHA256），按照下面的公式产生签名。</p></li>
+</ul>
+
+<pre><code class="language-python">  HMACSHA256(
+    base64UrlEncode(header) + &quot;.&quot; +
+    base64UrlEncode(payload),
+    secret)
+</code></pre>
+
+<ul>
+<li>算出签证后把Header、Payload、Signature三个部分拼成一个字符串，每个部分之间用&rdquo;点&rdquo;（<code>.</code>）分隔，就可以返回给用户。
+
+<br /></li>
+</ul>
+
+<h2 id="jwt-的使用方式">JWT 的使用方式</h2>
+
+<ul>
+<li>客户端收到服务器返回的 JWT，可以储存在 Cookie 里面，也可以储存在 localStorage。</li>
+</ul>
+
+<p>此后，客户端每次与服务器通信，都要带上这个 JWT。你可以把它放在 Cookie 里面自动发送，但是这样不能跨域，所以更好的做法是放在 HTTP 请求的头信息<code>Authorization</code>字段里面。</p>
+
+<pre><code>  Authorization: Bearer &lt;token&gt;
+</code></pre>
+
+<h2 id="jwt-的几个特点">JWT 的几个特点</h2>
+
+<pre><code>1. JWT 默认是不加密，但也是可以加密的。生成原始 Token 以后，可以用密钥再加密一次
+            2. JWT 不加密的情况下，不能将秘密数据写入 JWT
+        3. JWT 不仅可以用于认证，也可以用于交换信息。有效使用 JWT，可以降低服务器查询数据库的次数
+                4. JWT 的最大缺点是，由于服务器不保存 session 状态，因此无法在使用过程中废止某个 token，或者更改 token 的权限。也就是说，一旦 JWT 签发了，在到期之前就会始终有效，除非服务器部署额外的逻辑
+            5. JWT 本身包含了认证信息，一旦泄露，任何人都可以获得该令牌的所有权限。为了减少盗用，JWT 的有效期应该设置得比较短。对于一些比较重要的权限，使用时应该再次对用户进行认证
+                    6. 为了减少盗用，JWT 不应该使用 HTTP 协议明码传输，要使用 HTTPS 协议传输
+</code></pre>
+
+<h2 id="jwt的使用">JWT的使用</h2>
+
+<ul>
+<li>在settings里配置</li>
+</ul>
+
+<pre><code class="language-python">  # 配置 JWT
+  REST_FRAMEWORK = {
+      'DEFAULT_AUTHENTICATION_CLASSES': (
+          'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
+          'rest_framework.authentication.SessionAuthentication',
+          'rest_framework.authentication.BasicAuthentication',
+      ),
+  }
+</code></pre>
+
+<ul>
+<li>jwt底层一个方法只返回了token，我们还需要返回username,user_id,所以要重写方法</li>
+</ul>
+
+<pre><code class="language-python">  # 内部的JWT 只是返回的 token，我们需要它返回给我们 uesr_id，username，这里就重写JWT内置函数
+  # 这个函数 名是JWT库里内置的函数名，这里定义重写后在 setting 里配置一下即可
+  def jwt_response_payload_handler(token, user=None, request=None, **kwargs):
+      return {
+          'token':token,
+          'username': user.username,
+          'user_id': user.id,
+      }
+</code></pre>
+
+<ul>
+<li>写好后在settings里面配置一下</li>
+</ul>
+
+<pre><code class="language-python">  # token有效期配置
+  import datetime
+  JWT_AUTH = {
+      # 'JWT_PRIVATE_KEY':'asjkdasldjaslasjdkl', # 自定义密钥
+      'JWT_RESPONSE_PAYLOAD_HANDLER':
+      # users 子应用名
+      'users.views.jwt_response_payload_handler',
+      'JWT_EXPIRATION_DELTA': datetime.timedelta(seconds=60),
+  }
+</code></pre>
+
+<ul>
+<li>我们还想重写多账号登录，重写方法</li>
+</ul>
+
+<pre><code class="language-python">  # 多账号登录
+  from django.contrib.auth.backends import ModelBackend
+      
+  class UserModelBackend(ModelBackend):
+      def authenticate(self, request, username=None, password=None, **kwargs):
+          '''
+              多账号登陆
+              username == mobile   手机号可登陆
+              username == email    邮箱号可登陆
+              username == username  用户名可登录
+          '''
+          try:
+              user = models.Users.objects.get(username=username)
+              # 校验 用户名是否是原来用户名
+          except:
+              user = None
+              # 当前输入的不是用户名，可能是手机号 还有邮箱
+              try:
+                  user = models.Users.objects.get(email=username)
+              except:
+                  user = None
+                  try:
+                      user = models.Users.objects.get(mobile=username)
+                  except:
+                      user = None
+          if user and user.check_password(password):
+               
+              return user
+</code></pre>
+
+<ul>
+<li>写好后需要在settings里配置激活一下</li>
+</ul>
+
+<pre><code class="language-python">  # 激活重新的JWT函数生效
+  AUTHENTICATION_BACKENDS = [
+      # users:子应用名
+      'users.views.UserModelBackend',
+  ]
+</code></pre>
+
+<h4 id="手动创建-token">手动创建 token</h4>
+
+<ul>
+<li>导入模块</li>
+</ul>
+
+<pre><code class="language-python">  from rest_framework_jwt.settings import api_settings 
+</code></pre>
+
+<ul>
+<li>创建载荷和token对象</li>
+</ul>
+
+<pre><code class="language-python">  # 创建payload的函数   载荷
+  jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
+  # 创建 token 函数
+  jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
+</code></pre>
+
+<ul>
+<li>生成 token 返回</li>
+</ul>
+
+<pre><code class="language-python">  # users是一个用户对象
+  payload = jwt_payload_handler(users)   # 创建载荷
+  token = jwt_encode_handler(payload)    
+  mes = {'token':token,'username':users.username,'user_id':users.id}
+                             
+  return Response(mes)
+</code></pre>
+
+<h4 id="jwt内部有一个验证用户的接口">jwt内部有一个验证用户的接口</h4>
+
+<ul>
+<li>使用这个接口就不需要再写接口验证用户信息了，它会帮我们验证</li>
+</ul>
+
+<pre><code class="language-python">  from rest_framework_jwt.views import obtain_jwt_token
+</code></pre>
+
+<pre><code class="language-python">  path('login/',obtain_jwt_token),     # JWT 验证登录
+</code></pre>
+
+<ul>
+<li>让前端 提交登录 直接访问 login接口就能验证用户信息了，成功200，失败400，它默认密码必须是8位，username 必须是唯一的
+
+<br /></li>
+</ul>
+
+<h3 id="jwt访问后台接口认证">JWT访问后台接口认证</h3>
+
+<ul>
+<li><p>客户端有了 token 以后将其存在了浏览器上，那客户端再访问后台时就需要将 token 一起带着过去，后台校验 token 验证通过才给返回数据，保证了接口的安全</p></li>
+
+<li><p>校验方法有两种，一种是 JWT 内部完全做好的一个接口认证（verify），当你把 token post发送访问这个接口时，这个接口路由会自动帮你校验 token 是否有效，这种通常在 vue 里可以用于某种页面必须要用户登录状态可以访问的，可以在页面里写个钩子函数，让这个钩子函数带着 token 访问这个接口，认证不通过，跳去登录页面</p></li>
+
+<li><p>前端 vue代码</p></li>
+</ul>
+
+<pre><code class="language-python">  // 权限认证
+   // 钩子函数通过验证 token 显示登录框或用户框
+   mounted() {
+      var r = this.$router
+          
+      let token = localStorage.token
+      var zipFormData = new FormData();
+      zipFormData.append('token',token);
+      this.axios({
+          url:&quot;http://127.0.0.1:8000/api/verify/&quot;,
+          method: &quot;post&quot;,
+          data:zipFormData
+      }).then(res=&gt;{   
+              
+      }).catch(error=&gt;{
+          console.log(error)
+          r.push({'path':&quot;/login&quot;})
+      })
+      
+    },
+</code></pre>
+
+<ul>
+<li>vue访问的这个 verify 接口时需要在 django url 里配置的</li>
+</ul>
+
+<pre><code class="language-python">  # 需要导入这个模块
+  from rest_framework_jwt.views import verify_jwt_token
+      
+  urlpatterns = [
+      
+      path('verify/',verify_jwt_token),    # 验证 token 接口
+         
+  ]
+</code></pre>
+
+<ul>
+<li><p>验证成功走 then  失败走 catch</p></li>
+
+<li><p>还有一种方法，验证通过可以返回数据</p></li>
+
+<li><p>vue 代码</p></li>
+</ul>
+
+<pre><code class="language-python">  mounted() {
+          var r = this.$router
+          this.axios({
+              url:'http://127.0.0.1:8000/api/user_info/',
+              method:'get',
+              # headers 发送死格式  'JWT ' 引号里面JWT后面必须要有个空格
+              headers:{
+                  'Authorization': 'JWT ' + localStorage.token
+              }
+          }).then(res=&gt;{
+              console.log(res.data)
+              this.username = res.data.username
+              this.phone_number = res.data.mobile
+              this.email = res.data.email
+          }).catch(error=&gt;{
+                  
+              r.push({'path':&quot;/login&quot;})
+          })
+      },
+</code></pre>
+
+<ul>
+<li><p>访问后台一个接口，将 token 包含到请求头（headers）里，这样就不用管发起的是 get 还是 post 请求了</p></li>
+
+<li><p>后台代码，这种验证需要 rest_framework 一个模块</p></li>
+</ul>
+
+<pre><code class="language-python">  # 导入验证模块               
+  from rest_framework.permissions import IsAuthenticated
+      
+  # 个人中心验证返回用户数据
+  class User_info(APIView):
+      # IsAuthenticated 会自动验证，验证结束，如果验证OK 有效用户对象会被保存
+      # permission_classes:是底层的一个类方法
+      permission_classes = (IsAuthenticated,)
+      
+      # 验证结束会将 user 传递给 request
+      def get(self,request):
+          data_user = request.user
+          # 将 user 序列化处理
+          user = serializer.userSerializer(instance=data_user)
+      
+          return Response(user.data)
+</code></pre>
+
+<ul>
+<li>permission_classes = (IsAuthenticated,) 通过这一步验证才走下面 get 函数，将 user 返回，如果验证不通过，会走 vue 的 catch
+
+<br /></li>
+</ul>
+
+<h4 id="jwt接口认证结合-序列化器">JWT接口认证结合 序列化器</h4>
+
+<ul>
+<li><p>我们知道 serializers 序列化器中 instance参数是序列化传参，data是反序列化传参，那当着两个同时发起传参请求时就属于 update 了</p></li>
+
+<li><p>以修改密码为例</p>
+
+<ul>
+<li>前端vue 将新旧密码一起发给后台（携带token）</li>
+</ul>
+
+<pre><code class="language-python"> methods: {
+        
+    sub_pwd:function(){
+                
+        var zipFormData = new FormData();
+        zipFormData.append('old_password',this.password);
+        zipFormData.append('new_password',this.new_password);
+        this.axios({
+        url:&quot;http://127.0.0.1:8000/api/user_pass/&quot;,
+        method: &quot;post&quot;,
+        data:zipFormData,
+        headers:{
+                'Authorization': 'JWT ' + localStorage.token
+        }
+        }).then(res=&gt;{  
+            console.log(res) 
+            if(res.data.code==200){
+                alert('修改成功')
+                this.password = &quot;&quot;
+                this.new_password = &quot;&quot;
+                this.new_password_again = &quot;&quot;
+            }else{
+                alert('修改失败')
+                console.log(res.data)
+            }
+                            
+        }).catch(error=&gt;{
+            console.log(error)
+            r.push({'path':&quot;/login&quot;})
+                
+        })
+</code></pre>
+
+<ul>
+<li>后台先对请求进行 token 认证，认证通过会把这个token串解析成当前user传给下面函数</li>
+</ul>
+
+<pre><code class="language-python"># 修改密码页面权限
+class User_pass(APIView):
+        
+    permission_classes = (IsAuthenticated,)
+    # 通过上一步对 token 校验通过会将 user 对象传给下面 post的request
+    def post(self,request):
+        user = request.user
+        # 获取前端发送来的数据
+        vue_data = request.data
+        change_user = serializer.ChangePasswordSerializer(instance=user,data=vue_data)
+        
+        if change_user.is_valid():
+            # 将处理后的 user 保存
+            change_user.save()
+            return Response({'code':200})
+                
+        else:   
+            return Response({change_user.errors})
+</code></pre>
+
+<ul>
+<li>发现上面用到了序列化器，而且传参方式同时用到了两个，instance（序列化） data（反序列化）,我们去定义一个序列化器帮我们做事，其实这里有了 user 对象了，我们完全可以把user.password拿出来，再把前端发来的旧密码取出来（request.data[&lsquo;password&rsquo;]）进行对比，密码是哈希加密的，我们可以用 check_password 模块比对，比对通过直接加密修改入库，但这个用到了序列化器这个高级玩意儿，我们就写了序列化器</li>
+</ul>
+
+<pre><code class="language-python">from django.contrib.auth.hashers import check_password
+        
+# 定义验证密码序列化器  修改密码
+class ChangePasswordSerializer(serializers.Serializer):
+    # read_only 我给别人的 是不需要给password2
+    old_password = serializers.CharField(
+        min_length=8,
+        max_length=20,
+        required=True, 
+        write_only=True, # 只能被填写 不能被返回
+        error_messages={
+            'min_length': '太短了',
+            'max_length': '太长了',
+        }
+    )    
+        
+    new_password = serializers.CharField(
+        min_length=8,
+        max_length=20,
+        required=True, 
+        write_only=True, # 只能被填写 不能被返回
+        error_messages={
+            'min_length': '太短了',
+            'max_length': '太长了',
+        }
+    )    
+        
+    def update(self,instance,validate):
+        '''
+            instance:是views传过来的数据，是当前用户对象，里面有用户信息
+            validate：是views 传过来的数据，是前端vue传过来的数据
+            instance和data同时传参就是 update
+        '''
+        
+        # 将旧密码和新密码都从前端发送过来的容器里取出来
+        old_password = validate['old_password']
+        new_password = validate['new_password']
+                
+        # instance.password = user.password
+        # 密码是哈希加密，验证需要导入模块 check_password
+        if check_password(old_password,instance.password):
+            # 前端发来的旧密码和用户解析出来的密码校验成功 就赋值新密码
+            instance.set_password(new_password)
+            instance.save()
+        else:
+            # 抛出错误
+            raise serializers.ValidationError('旧密码输入错误')
+        # 操作成功将 instance 返回 views
+        return instance
+</code></pre>
+
+<ul>
+<li><p>将处理好的 user（instance）返回给views，views将其处理（见上面django代码）</p></li>
+
+<li><p>这个逻辑就是，前端需要把 token ，旧密码和新密码一起给后台，django通过特定的方法验证token并返回当前 user，将当前user和前端的数据一起交给序列化器，然后将新旧密码单独取出来，也将当前 user的密码取出来和用户提交的旧密码对比，对比一直，就将新密码保存</p></li>
+</ul></li>
+</ul></li>
+</ul>
+
+              
+            </div>
+          </div>
+          <div id="post-footer" class="post-footer main-content-wrap">
+            
+              
+                
+                
+                  <div class="post-footer-tags">
+                    <span class="text-color-light text-small">标签</span><br/>
+                    
+  <a class="tag tag--primary tag--small" href="/tags/django/">Django</a>
+
+                  </div>
+                
+              
+            
+            <div class="post-actions-wrap">
+  
+      <nav >
+        <ul class="post-actions post-action-nav">
+          
+            <li class="post-action">
+              
+                <a class="post-action-btn btn btn--default tooltip--top" href="/2017/10/celeryrabbitmq/" data-tooltip="celery&amp;rabbitmq">
+              
+                  <i class="fa fa-angle-left"></i>
+                  <span class="hide-xs hide-sm text-small icon-ml">下一篇</span>
+                </a>
+            </li>
+            <li class="post-action">
+              
+                <a class="post-action-btn btn btn--default tooltip--top" href="/2017/08/dockerfastfds/" data-tooltip="docker&amp;Fastfds">
+              
+                  <span class="hide-xs hide-sm text-small icon-mr">上一篇</span>
+                  <i class="fa fa-angle-right"></i>
+                </a>
+            </li>
+          
+        </ul>
+      </nav>
+    <ul class="post-actions post-action-share" >
+      
+        <li class="post-action hide-lg hide-md hide-sm">
+          <a class="post-action-btn btn btn--default btn-open-shareoptions" href="#btn-open-shareoptions">
+            <i class="fa fa-share-alt"></i>
+          </a>
+        </li>
+        
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://www.facebook.com/sharer/sharer.php?u=/2017/08/jwt/">
+              <i class="fa fa-facebook-official"></i>
+            </a>
+          </li>
+        
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://twitter.com/intent/tweet?text=/2017/08/jwt/">
+              <i class="fa fa-twitter"></i>
+            </a>
+          </li>
+        
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://plus.google.com/share?url=/2017/08/jwt/">
+              <i class="fa fa-google-plus"></i>
+            </a>
+          </li>
+        
+      
+      
+        <li class="post-action">
+          <a class="post-action-btn btn btn--default" href="#disqus_thread">
+            <i class="fa fa-comment-o"></i>
+          </a>
+        </li>
+      
+      <li class="post-action">
+        
+          <a class="post-action-btn btn btn--default" href="#">
+        
+          <i class="fa fa-list"></i>
+        </a>
+      </li>
+    </ul>
+  
+</div>
+
+            
+              
+                <div id="disqus_thread">
+  <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+              
+            
+          </div>
+        </article>
+        <footer id="footer" class="main-content-wrap">
+  <span class="copyrights">
+    &copy; 2019 SuJiankang. All Rights Reserved
+  </span>
+</footer>
+
+      </div>
+      <div id="bottom-bar" class="post-bottom-bar" data-behavior="4">
+        <div class="post-actions-wrap">
+  
+      <nav >
+        <ul class="post-actions post-action-nav">
+          
+            <li class="post-action">
+              
+                <a class="post-action-btn btn btn--default tooltip--top" href="/2017/10/celeryrabbitmq/" data-tooltip="celery&amp;rabbitmq">
+              
+                  <i class="fa fa-angle-left"></i>
+                  <span class="hide-xs hide-sm text-small icon-ml">下一篇</span>
+                </a>
+            </li>
+            <li class="post-action">
+              
+                <a class="post-action-btn btn btn--default tooltip--top" href="/2017/08/dockerfastfds/" data-tooltip="docker&amp;Fastfds">
+              
+                  <span class="hide-xs hide-sm text-small icon-mr">上一篇</span>
+                  <i class="fa fa-angle-right"></i>
+                </a>
+            </li>
+          
+        </ul>
+      </nav>
+    <ul class="post-actions post-action-share" >
+      
+        <li class="post-action hide-lg hide-md hide-sm">
+          <a class="post-action-btn btn btn--default btn-open-shareoptions" href="#btn-open-shareoptions">
+            <i class="fa fa-share-alt"></i>
+          </a>
+        </li>
+        
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://www.facebook.com/sharer/sharer.php?u=/2017/08/jwt/">
+              <i class="fa fa-facebook-official"></i>
+            </a>
+          </li>
+        
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://twitter.com/intent/tweet?text=/2017/08/jwt/">
+              <i class="fa fa-twitter"></i>
+            </a>
+          </li>
+        
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://plus.google.com/share?url=/2017/08/jwt/">
+              <i class="fa fa-google-plus"></i>
+            </a>
+          </li>
+        
+      
+      
+        <li class="post-action">
+          <a class="post-action-btn btn btn--default" href="#disqus_thread">
+            <i class="fa fa-comment-o"></i>
+          </a>
+        </li>
+      
+      <li class="post-action">
+        
+          <a class="post-action-btn btn btn--default" href="#">
+        
+          <i class="fa fa-list"></i>
+        </a>
+      </li>
+    </ul>
+  
+</div>
+
+      </div>
+      <div id="share-options-bar" class="share-options-bar" data-behavior="4">
+  <i id="btn-close-shareoptions" class="fa fa-close"></i>
+  <ul class="share-options">
+    
+      <li class="share-option">
+        <a class="share-option-btn" target="new" href="https://www.facebook.com/sharer/sharer.php?u=%2F2017%2F08%2Fjwt%2F">
+          <i class="fa fa-facebook-official"></i><span>分享到 Facebook</span>
+        </a>
+      </li>
+    
+      <li class="share-option">
+        <a class="share-option-btn" target="new" href="https://twitter.com/intent/tweet?text=%2F2017%2F08%2Fjwt%2F">
+          <i class="fa fa-twitter"></i><span>分享到 Twitter</span>
+        </a>
+      </li>
+    
+      <li class="share-option">
+        <a class="share-option-btn" target="new" href="https://plus.google.com/share?url=%2F2017%2F08%2Fjwt%2F">
+          <i class="fa fa-google-plus"></i><span>分享到 Google&#43;</span>
+        </a>
+      </li>
+    
+  </ul>
+</div>
+<div id="share-options-mask" class="share-options-mask"></div>
+    </div>
+    
+    <div id="about">
+  <div id="about-card">
+    <div id="about-btn-close">
+      <i class="fa fa-remove"></i>
+    </div>
+    
+      <img id="about-card-picture" src="https://www.gravatar.com/avatar/d09dc2d7aa5c467519e8af89f7b3d94c?s=110" alt="作者的图片" />
+    
+    <h4 id="about-card-name">SuJiankang</h4>
+    
+      <div id="about-card-bio"><strong>自古英雄出炼狱 从来富贵入凡尘</strong></div>
+    
+    
+      <div id="about-card-job">
+        <i class="fa fa-briefcase"></i>
+        <br/>
+        Your job title
+      </div>
+    
+    
+      <div id="about-card-location">
+        <i class="fa fa-map-marker"></i>
+        <br/>
+        France
+      </div>
+    
+  </div>
+</div>
+
+    
+
+    
+  
+    
+      <div id="cover" style="background-image:url('/images/cover.jpg');"></div>
+    
+  
+
+
+    
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.4/jquery.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js" integrity="sha256-/BfiIkHlHoVihZdc6TFuj7MmJ0TWcWsMXkeDFwhi0zw=" crossorigin="anonymous"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.7/js/jquery.fancybox.min.js" integrity="sha256-GEAnjcTqVP+vBp3SSc8bEDQqvWAZMiHyUSIorrWwH50=" crossorigin="anonymous"></script>
+
+
+<script src="/js/script-pcw6v3xilnxydl1vddzazdverrnn9ctynvnxgwho987mfyqkuylcb1nlt.min.js"></script>
+
+
+<script lang="javascript">
+window.onload = updateMinWidth;
+window.onresize = updateMinWidth;
+document.getElementById("sidebar").addEventListener("transitionend", updateMinWidth);
+function updateMinWidth() {
+  var sidebar = document.getElementById("sidebar");
+  var main = document.getElementById("main");
+  main.style.minWidth = "";
+  var w1 = getComputedStyle(main).getPropertyValue("min-width");
+  var w2 = getComputedStyle(sidebar).getPropertyValue("width");
+  var w3 = getComputedStyle(sidebar).getPropertyValue("left");
+  main.style.minWidth = `calc(${w1} - ${w2} - ${w3})`;
+}
+</script>
+
+<script>
+$(document).ready(function() {
+  hljs.configure({ classPrefix: '', useBR: false });
+  $('pre.code-highlight > code, pre > code').each(function(i, block) {
+    if (!$(this).hasClass('codeblock')) {
+      $(this).addClass('codeblock');
+    }
+    hljs.highlightBlock(block);
+  });
+});
+</script>
+
+
+  
+    
+      <script>
+        var disqus_config = function () {
+          this.page.url = '\/2017\/08\/jwt\/';
+          
+            this.page.identifier = '\/2017\/08\/jwt\/'
+          
+        };
+        (function() {
+          
+          
+          if (window.location.hostname == "localhost") {
+            return;
+          }
+          var d = document, s = d.createElement('script');
+          var disqus_shortname = 'hugo-tranquilpeak-theme';
+          s.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+
+          s.setAttribute('data-timestamp', +new Date());
+          (d.head || d.body).appendChild(s);
+        })();
+      </script>
+    
+  
+
+
+
+
+    
+  </body>
+</html>
+

@@ -1,0 +1,1209 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    
+    <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="generator" content="Hugo 0.55.6 with theme Tranquilpeak 0.4.3-SNAPSHOT">
+<meta name="author" content="SuJiankang">
+<meta name="keywords" content=", categories, tags">
+<meta name="description" content="Ansible ## Ansible
+ ansible基于Python开发，集合了众多运维工具（puppet、cfengine、chef、func、fabric）的优点，实现了批量系统配置、批量程序部署、批量运行命令等功能
+在使用时，ansible不需要在被控端安装客户端，ansible工作基于ssh，只要被控端服务器有ssh服务，加上一个Python环境，就可以使用ansible
+另外，ansible在15年的时候，以1.5亿美元被RedHat公司收购，新版的RedHat操作系统内置ansible软件，很厉害的
+ Ansible部署  ansible安装可以通过源码，yum源以及python所提供的pip管理工具进行安装
+  使用pip管理工具进行安装  pip3 install ansible   使用yum进行安装  yum install epel-release # 安装扩展源 yum install ansible  Ansible配置  安装之后，默认ansible工具的配置文件在/etc/ansible下
+如果通过pip命令安装，是没有这个目录的，需要我们手动创建，其中所需主要配置文件如下
+  ansible.cfg：ansible主配置文件 hosts：被管理主机IP或者主机名列表文件，也是比较重要的一个文件 roles：角色或插件目录（默认为空）   此外除了默认的ansible的配置文件路径，关于ansible的配置文件路径选择还有如下几种，按照顺序表示优先级
+  export ANSIBLE_CONFI：指定的全局变量 ./ansible.cfg：当前目录下的配置文件 ~/.ansible.cfg：当前用户目录下的配置文件 /etc/ansible/ansible.cfg：etc目录下的配置文件   如果以上四个路径下均没有cfg配置文件，则使用默认配置
+如果通过源进行安装，那么在/etc/ansible/目录下会自动包含ansible.cfg文件
+也可以通过访问在线的配置文件地址进行获取
+  配置文件示例   https://raw.githubusercontent.com/ansible/ansible/devel/examples/ansible.cfg
+  ansible配置文件中可以进行ansible的各项参数的设置，包括并发线程数量、用户、模块路径、调优等等
+ defaluts：默认的配置项，一般不需要修改 privilege_escalation：执行命令的用户权限设置 paramiko_connection：paramiko插件设置 ssh_connection：ssh连接设置  默认ansible使用hosts文件列举监控主机，格式为ini，可以进行IP的分组以及IP规则设置，比如如下的例子">
+
+
+<meta property="og:description" content="Ansible ## Ansible
+ ansible基于Python开发，集合了众多运维工具（puppet、cfengine、chef、func、fabric）的优点，实现了批量系统配置、批量程序部署、批量运行命令等功能
+在使用时，ansible不需要在被控端安装客户端，ansible工作基于ssh，只要被控端服务器有ssh服务，加上一个Python环境，就可以使用ansible
+另外，ansible在15年的时候，以1.5亿美元被RedHat公司收购，新版的RedHat操作系统内置ansible软件，很厉害的
+ Ansible部署  ansible安装可以通过源码，yum源以及python所提供的pip管理工具进行安装
+  使用pip管理工具进行安装  pip3 install ansible   使用yum进行安装  yum install epel-release # 安装扩展源 yum install ansible  Ansible配置  安装之后，默认ansible工具的配置文件在/etc/ansible下
+如果通过pip命令安装，是没有这个目录的，需要我们手动创建，其中所需主要配置文件如下
+  ansible.cfg：ansible主配置文件 hosts：被管理主机IP或者主机名列表文件，也是比较重要的一个文件 roles：角色或插件目录（默认为空）   此外除了默认的ansible的配置文件路径，关于ansible的配置文件路径选择还有如下几种，按照顺序表示优先级
+  export ANSIBLE_CONFI：指定的全局变量 ./ansible.cfg：当前目录下的配置文件 ~/.ansible.cfg：当前用户目录下的配置文件 /etc/ansible/ansible.cfg：etc目录下的配置文件   如果以上四个路径下均没有cfg配置文件，则使用默认配置
+如果通过源进行安装，那么在/etc/ansible/目录下会自动包含ansible.cfg文件
+也可以通过访问在线的配置文件地址进行获取
+  配置文件示例   https://raw.githubusercontent.com/ansible/ansible/devel/examples/ansible.cfg
+  ansible配置文件中可以进行ansible的各项参数的设置，包括并发线程数量、用户、模块路径、调优等等
+ defaluts：默认的配置项，一般不需要修改 privilege_escalation：执行命令的用户权限设置 paramiko_connection：paramiko插件设置 ssh_connection：ssh连接设置  默认ansible使用hosts文件列举监控主机，格式为ini，可以进行IP的分组以及IP规则设置，比如如下的例子">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Ansible批量运维">
+<meta name="twitter:title" content="Ansible批量运维">
+<meta property="og:url" content="/2019/02/ansible%E6%89%B9%E9%87%8F%E8%BF%90%E7%BB%B4/">
+<meta property="twitter:url" content="/2019/02/ansible%E6%89%B9%E9%87%8F%E8%BF%90%E7%BB%B4/">
+<meta property="og:site_name" content="HOME">
+<meta property="og:description" content="Ansible ## Ansible
+ ansible基于Python开发，集合了众多运维工具（puppet、cfengine、chef、func、fabric）的优点，实现了批量系统配置、批量程序部署、批量运行命令等功能
+在使用时，ansible不需要在被控端安装客户端，ansible工作基于ssh，只要被控端服务器有ssh服务，加上一个Python环境，就可以使用ansible
+另外，ansible在15年的时候，以1.5亿美元被RedHat公司收购，新版的RedHat操作系统内置ansible软件，很厉害的
+ Ansible部署  ansible安装可以通过源码，yum源以及python所提供的pip管理工具进行安装
+  使用pip管理工具进行安装  pip3 install ansible   使用yum进行安装  yum install epel-release # 安装扩展源 yum install ansible  Ansible配置  安装之后，默认ansible工具的配置文件在/etc/ansible下
+如果通过pip命令安装，是没有这个目录的，需要我们手动创建，其中所需主要配置文件如下
+  ansible.cfg：ansible主配置文件 hosts：被管理主机IP或者主机名列表文件，也是比较重要的一个文件 roles：角色或插件目录（默认为空）   此外除了默认的ansible的配置文件路径，关于ansible的配置文件路径选择还有如下几种，按照顺序表示优先级
+  export ANSIBLE_CONFI：指定的全局变量 ./ansible.cfg：当前目录下的配置文件 ~/.ansible.cfg：当前用户目录下的配置文件 /etc/ansible/ansible.cfg：etc目录下的配置文件   如果以上四个路径下均没有cfg配置文件，则使用默认配置
+如果通过源进行安装，那么在/etc/ansible/目录下会自动包含ansible.cfg文件
+也可以通过访问在线的配置文件地址进行获取
+  配置文件示例   https://raw.githubusercontent.com/ansible/ansible/devel/examples/ansible.cfg
+  ansible配置文件中可以进行ansible的各项参数的设置，包括并发线程数量、用户、模块路径、调优等等
+ defaluts：默认的配置项，一般不需要修改 privilege_escalation：执行命令的用户权限设置 paramiko_connection：paramiko插件设置 ssh_connection：ssh连接设置  默认ansible使用hosts文件列举监控主机，格式为ini，可以进行IP的分组以及IP规则设置，比如如下的例子">
+<meta name="twitter:description" content="Ansible ## Ansible
+ ansible基于Python开发，集合了众多运维工具（puppet、cfengine、chef、func、fabric）的优点，实现了批量系统配置、批量程序部署、批量运行命令等功能
+在使用时，ansible不需要在被控端安装客户端，ansible工作基于ssh，只要被控端服务器有ssh服务，加上一个Python环境，就可以使用ansible
+另外，ansible在15年的时候，以1.5亿美元被RedHat公司收购，新版的RedHat操作系统内置ansible软件，很厉害的
+ Ansible部署  ansible安装可以通过源码，yum源以及python所提供的pip管理工具进行安装
+  使用pip管理工具进行安装  pip3 install ansible   使用yum进行安装  yum install epel-release # 安装扩展源 yum install ansible  Ansible配置  安装之后，默认ansible工具的配置文件在/etc/ansible下
+如果通过pip命令安装，是没有这个目录的，需要我们手动创建，其中所需主要配置文件如下
+  ansible.cfg：ansible主配置文件 hosts：被管理主机IP或者主机名列表文件，也是比较重要的一个文件 roles：角色或插件目录（默认为空）   此外除了默认的ansible的配置文件路径，关于ansible的配置文件路径选择还有如下几种，按照顺序表示优先级
+  export ANSIBLE_CONFI：指定的全局变量 ./ansible.cfg：当前目录下的配置文件 ~/.ansible.cfg：当前用户目录下的配置文件 /etc/ansible/ansible.cfg：etc目录下的配置文件   如果以上四个路径下均没有cfg配置文件，则使用默认配置
+如果通过源进行安装，那么在/etc/ansible/目录下会自动包含ansible.cfg文件
+也可以通过访问在线的配置文件地址进行获取
+  配置文件示例   https://raw.githubusercontent.com/ansible/ansible/devel/examples/ansible.cfg
+  ansible配置文件中可以进行ansible的各项参数的设置，包括并发线程数量、用户、模块路径、调优等等
+ defaluts：默认的配置项，一般不需要修改 privilege_escalation：执行命令的用户权限设置 paramiko_connection：paramiko插件设置 ssh_connection：ssh连接设置  默认ansible使用hosts文件列举监控主机，格式为ini，可以进行IP的分组以及IP规则设置，比如如下的例子">
+<meta property="og:locale" content="zh-cn">
+
+  
+    <meta property="article:published_time" content="2019-02-13T00:00:00">
+  
+  
+    <meta property="article:modified_time" content="2019-02-13T00:00:00">
+  
+  
+  
+    
+      <meta property="article:section" content="Linux">
+    
+      <meta property="article:section" content="features">
+    
+  
+  
+    
+      <meta property="article:tag" content="Ansible">
+    
+  
+
+
+<meta name="twitter:card" content="summary">
+
+
+
+
+
+
+
+  <meta property="og:image" content="//d1u9biwaxjngwg.cloudfront.net/cover-image-showcase/city-750.jpg">
+  <meta property="twitter:image" content="//d1u9biwaxjngwg.cloudfront.net/cover-image-showcase/city-750.jpg">
+
+
+  <meta property="og:image" content="//d1u9biwaxjngwg.cloudfront.net/cover-image-showcase/city.jpg">
+  <meta property="twitter:image" content="//d1u9biwaxjngwg.cloudfront.net/cover-image-showcase/city.jpg">
+
+
+
+
+  <meta property="og:image" content="https://www.gravatar.com/avatar/d09dc2d7aa5c467519e8af89f7b3d94c?s=640">
+  <meta property="twitter:image" content="https://www.gravatar.com/avatar/d09dc2d7aa5c467519e8af89f7b3d94c?s=640">
+
+
+    <title>Ansible批量运维</title>
+
+    <link rel="icon" href="/favicon.png">
+    
+
+    
+
+    <link rel="canonical" href="/2019/02/ansible%E6%89%B9%E9%87%8F%E8%BF%90%E7%BB%B4/">
+
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha256-eZrrJcwDc/3uDhsdt61sL2oOBY362qM3lon1gyExkL0=" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.4/jquery.fancybox.min.css" integrity="sha256-vuXZ9LGmmwtjqFX1F+EKin1ThZMub58gKULUyf0qECk=" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.4/helpers/jquery.fancybox-thumbs.min.css" integrity="sha256-SEa4XYAHihTcEP1f5gARTB2K26Uk8PsndQYHQC1f4jU=" crossorigin="anonymous" />
+    
+    
+    <link rel="stylesheet" href="/css/style-twzjdbqhmnnacqs0pwwdzcdbt8yhv8giawvjqjmyfoqnvazl0dalmnhdkvp7.min.css" />
+    
+    
+
+    
+      
+    
+    
+  </head>
+
+  <body>
+    <div id="blog">
+      <header id="header" data-behavior="4">
+  <i id="btn-open-sidebar" class="fa fa-lg fa-bars"></i>
+  <div class="header-title">
+    <a class="header-title-link" href="/">HOME</a>
+  </div>
+  
+    
+      <a class="header-right-picture "
+         href="/#about">
+    
+    
+    
+      
+        <img class="header-picture" src="https://www.gravatar.com/avatar/d09dc2d7aa5c467519e8af89f7b3d94c?s=90" alt="作者的图片" />
+      
+    
+    </a>
+  
+</header>
+
+      <nav id="sidebar" data-behavior="4">
+  <div class="sidebar-container">
+    
+      <div class="sidebar-profile">
+        <a href="/#about">
+          <img class="sidebar-profile-picture" src="https://www.gravatar.com/avatar/d09dc2d7aa5c467519e8af89f7b3d94c?s=110" alt="作者的图片" />
+        </a>
+        <h4 class="sidebar-profile-name">SuJiankang</h4>
+        
+          <h5 class="sidebar-profile-bio"><strong>自古英雄出炼狱 从来富贵入凡尘</strong></h5>
+        
+      </div>
+    
+    <ul class="sidebar-buttons">
+      
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="/">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-home"></i>
+      
+      <span class="sidebar-button-desc">首页</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="/categories">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-bookmark"></i>
+      
+      <span class="sidebar-button-desc">分类</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="/tags">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-tags"></i>
+      
+      <span class="sidebar-button-desc">标签</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="/archives">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-archive"></i>
+      
+      <span class="sidebar-button-desc">归档</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="/#about">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-question"></i>
+      
+      <span class="sidebar-button-desc">关于</span>
+    </a>
+  </li>
+
+
+    </ul>
+    <ul class="sidebar-buttons">
+      
+
+    </ul>
+    <ul class="sidebar-buttons">
+      
+
+    </ul>
+  </div>
+</nav>
+
+      
+  <div class="post-header-cover
+              text-center
+              "
+       style="background-image:url('//d1u9biwaxjngwg.cloudfront.net/cover-image-showcase/city.jpg')"
+       data-behavior="4">
+    
+  </div>
+
+
+      <div id="main" data-behavior="4"
+        class="hasCover
+               hasCoverMetaOut
+               ">
+        <article class="post" itemscope itemType="http://schema.org/BlogPosting">
+          
+          
+            <div class="post-header main-content-wrap text-center">
+  
+    <h1 class="post-title" itemprop="headline">
+      Ansible批量运维
+    </h1>
+  
+  
+  <div class="postShorten-meta post-meta">
+    
+      <time itemprop="datePublished" datetime="2019-02-13T00:00:00Z">
+        
+  二月 13, 2019
+
+      </time>
+    
+    
+  
+  
+    <span>发布在</span>
+    
+      <a class="category-link" href="/categories/linux">Linux</a>, 
+    
+      <a class="category-link" href="/categories/features">features</a>
+    
+  
+
+  </div>
+
+</div>
+          
+          <div class="post-content markdown" itemprop="articleBody">
+            <div class="main-content-wrap">
+              
+
+<h1 id="ansible">Ansible</h1>
+
+<p>## Ansible</p>
+
+<blockquote>
+<p><code>ansible</code>基于Python开发，集合了众多运维工具（<code>puppet</code>、<code>cfengine</code>、<code>chef</code>、<code>func</code>、<code>fabric</code>）的优点，实现了批量系统配置、批量程序部署、批量运行命令等功能</p>
+
+<p>在使用时，<code>ansible</code>不需要在被控端安装客户端，<code>ansible</code>工作基于<code>ssh</code>，只要被控端服务器有<code>ssh</code>服务，加上一个<code>Python</code>环境，就可以使用<code>ansible</code></p>
+
+<p>另外，<code>ansible</code>在15年的时候，以<code>1.5</code>亿美元被<code>RedHat</code>公司收购，新版的<code>RedHat</code>操作系统内置<code>ansible</code>软件，很厉害的</p>
+</blockquote>
+
+<h2 id="ansible部署">Ansible部署</h2>
+
+<blockquote>
+<p><code>ansible</code>安装可以通过源码，<code>yum</code>源以及<code>python</code>所提供的<code>pip</code>管理工具进行安装</p>
+</blockquote>
+
+<ul>
+<li>使用<code>pip</code>管理工具进行安装</li>
+</ul>
+
+<pre><code class="language-pip3">  pip3 install ansible
+</code></pre>
+
+<ul>
+<li>使用<code>yum</code>进行安装</li>
+</ul>
+
+<pre><code class="language-yum">  yum install epel-release # 安装扩展源
+  yum install ansible
+</code></pre>
+
+<h2 id="ansible配置">Ansible配置</h2>
+
+<blockquote>
+<p>安装之后，默认<code>ansible</code>工具的配置文件在<code>/etc/ansible</code>下</p>
+
+<p>如果通过pip命令安装，是没有这个目录的，需要我们手动创建，其中所需主要配置文件如下</p>
+</blockquote>
+
+<p><img src="/images/hosts.png" alt="" /></p>
+
+<ul>
+<li><code>ansible.cfg</code>：<code>ansible</code>主配置文件</li>
+<li><code>hosts</code>：被管理主机<code>IP</code>或者主机名列表文件，也是比较重要的一个文件</li>
+<li><code>roles</code>：角色或插件目录（默认为空）</li>
+</ul>
+
+<blockquote>
+<p>此外除了默认的<code>ansible</code>的配置文件路径，关于<code>ansible</code>的配置文件路径选择还有如下几种，按照顺序表示优先级</p>
+</blockquote>
+
+<ul>
+<li><code>export ANSIBLE_CONFI</code>：指定的全局变量</li>
+<li><code>./ansible.cfg</code>：当前目录下的配置文件</li>
+<li><code>~/.ansible.cfg</code>：当前用户目录下的配置文件</li>
+<li><code>/etc/ansible/ansible.cfg</code>：<code>etc</code>目录下的配置文件</li>
+</ul>
+
+<blockquote>
+<p>如果以上四个路径下均没有<code>cfg</code>配置文件，则使用默认配置</p>
+
+<p>如果通过源进行安装，那么在<code>/etc/ansible/</code>目录下会自动包含<code>ansible.cfg</code>文件</p>
+
+<p>也可以通过访问在线的配置文件地址进行获取</p>
+</blockquote>
+
+<ul>
+<li>配置文件示例</li>
+</ul>
+
+<blockquote>
+<p><a href="https://raw.githubusercontent.com/ansible/ansible/devel/examples/ansible.cfg">https://raw.githubusercontent.com/ansible/ansible/devel/examples/ansible.cfg</a></p>
+</blockquote>
+
+<ul>
+<li><p><code>ansible</code>配置文件中可以进行<code>ansible</code>的各项参数的设置，包括并发线程数量、用户、模块路径、调优等等</p>
+
+<ul>
+<li><code>defaluts</code>：默认的配置项，一般不需要修改</li>
+<li><code>privilege_escalation</code>：执行命令的用户权限设置</li>
+<li><code>paramiko_connection</code>：<code>paramiko</code>插件设置</li>
+<li><code>ssh_connection</code>：<code>ssh</code>连接设置</li>
+</ul></li>
+
+<li><p>默认<code>ansible</code>使用<code>hosts</code>文件列举监控主机，格式为<code>ini</code>，可以进行<code>IP</code>的分组以及<code>IP</code>规则设置，比如如下的例子</p></li>
+</ul>
+
+<pre><code class="language-python">  [webserver]    --&gt; 组名
+  192.168.1.101:22   --&gt; Ip
+</code></pre>
+
+<blockquote>
+<p><code>ansible</code>支持很多模块来进行对被控主机的管理，包括：<code>command</code>、<code>shell</code>、<code>script</code>、<code>yum</code>、<code>copy</code>、<code>File</code>、<code>async</code>、<code>docker</code>、<code>cron</code>、<code>mysql_user</code>、<code>ping</code>、<code>sysctl</code>、<code>user</code>、<code>acl</code>、<code>add_host</code>、<code>easy_install</code>、<code>haproxy</code>等。默认在执行命令时，使用模块为<code>command</code>，接下里会进行介绍</p>
+</blockquote>
+
+<h2 id="ansible使用参数">Ansible使用参数</h2>
+
+<blockquote>
+<p><code>ansible</code>在工作时，需要使用我们安装好的<code>ansible</code>来执行命令</p>
+
+<p>经常在使用<code>ansible</code>模块进行工作时，可能还需要额外提供一些参数来辅助工作，下面是常用参数</p>
+</blockquote>
+
+<table>
+<thead>
+<tr>
+<th>命令参数</th>
+<th>解释</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>-v</td>
+<td>打印详细信息</td>
+</tr>
+
+<tr>
+<td>-m</td>
+<td>指定使用的模块，默认为command模块</td>
+</tr>
+
+<tr>
+<td>-k</td>
+<td>要求输入远程主机密码</td>
+</tr>
+
+<tr>
+<td>-a</td>
+<td>将参数或命令传入模块</td>
+</tr>
+
+<tr>
+<td>-c</td>
+<td>测试执行过程，但不真正执行</td>
+</tr>
+
+<tr>
+<td>-sudo</td>
+<td>基于 sudo 用户执行</td>
+</tr>
+
+<tr>
+<td>&ndash;list-hosts</td>
+<td>列举命令生效的主机</td>
+</tr>
+
+<tr>
+<td>-l</td>
+<td>限制匹配规则的主机数</td>
+</tr>
+
+<tr>
+<td>-i</td>
+<td>指定hosts文件路径</td>
+</tr>
+
+<tr>
+<td>-u</td>
+<td>SSH 连接所使用用户</td>
+</tr>
+</tbody>
+</table>
+
+<blockquote>
+<p>现在看到这些命令参数你可能有一些蒙蔽，不过不要着急，结合模块使用，你将很快了解这些参数的实际意义</p>
+</blockquote>
+
+<h2 id="配置免密登录">配置免密登录</h2>
+
+<ul>
+<li>先试一下能不能连上别的服务器</li>
+</ul>
+
+<blockquote>
+<p>ssh root@39.106.21.62   &ndash;&gt;在自己主机上连接别的主机</p>
+
+<p>exit     &ndash;&gt; logout Connection to 39.106.21.62 closed.  退出别的主机连接</p>
+
+<p>由于<code>ansible</code>是通过 SSH 服务进行命令下达执行，那避免不了用户认证</p>
+
+<p>那如果每次操作都输入密码的话就会很麻烦，这里可以配置一下主控端和被控端主机之间的免密登录，只需配置一次，以后再操控该主机就无需密码</p>
+</blockquote>
+
+<ul>
+<li>在主控服务器 192.168.1.104 （你自己的服务器ip）下生成秘钥</li>
+</ul>
+
+<pre><code class="language-python">  ssh-keygen -t rsa 
+  #-t指定加密的方式，默认为rsa
+  # 输入上面命令后一直 enter键
+</code></pre>
+
+<ul>
+<li>秘钥生成如下</li>
+</ul>
+
+<p><img src="/images/免密秘钥.png" alt="" /></p>
+
+<ul>
+<li>进行秘钥的分发</li>
+</ul>
+
+<blockquote>
+<p>ssh-copy-id -i ~/.ssh/id_rsa.pub root@39.106.21.62   &ndash;&gt; 后面是要操作的主机 ip</p>
+
+<p>输入完以上命令后会显示让你输入此主机的登录密码，输入完就配置成功，那你再运行</p>
+
+<p>ssh root@39.106.21.62命令发现已经不需要密码就可以登录了</p>
+</blockquote>
+
+<ul>
+<li>输入对应远程主机的<code>ssh</code>账号密码之后，接下来在主控服务器就可以不进行<code>SSH</code>的用户认证也可以访问到被控端，这里测试主机为<code>192.168.1.104</code>（主控），<code>39.106.21.62</code>（被控）</li>
+</ul>
+
+<h2 id="定义主机及组规则">定义主机及组规则</h2>
+
+<blockquote>
+<p>那么既然想要批量操作从机服务器，我们不可能每一部服务器都挨个去配置免密吧，那也很麻烦，它还是有批量分发秘钥免密操作方法的，这里既然说要批量操作从机，我们有个好的方法就是将想要操控的服务器全部写在 hosts 配置文件里，它有一下方法</p>
+</blockquote>
+
+<ul>
+<li>直接将 ip 写入（最笨的方法）</li>
+</ul>
+
+<blockquote>
+<p>192.168.1.101  &ndash;&gt;这样 ip 越来越多，你也分不清</p>
+</blockquote>
+
+<ul>
+<li>将 ip 号分成组</li>
+</ul>
+
+<blockquote>
+<p>[onegroup]  &ndash;&gt; 一组
+192.168.1.101:2333       &ndash;&gt; 也可以在规则的<code>IP</code>后指定端口</p>
+
+<p>[twogroup]   &ndash;&gt; 二组</p>
+
+<p>185.168.1.101:2333</p>
+</blockquote>
+
+<ul>
+<li>规则命名</li>
+</ul>
+
+<blockquote>
+<p>当一个组内的 ip 越来越多，你可能不知道哪个 ip 是哪个服务器的，可以先给每个 ip定义一个变量名，然后将变量名写在组内，这样就可以指定哪个 ip 是哪个服务器了</p>
+
+<p>zhangsan_host ansible_ssh_host=192.168.1.101
+[onegroup]
+zhangsan_host</p>
+</blockquote>
+
+<ul>
+<li><p>在使用时，直接利用变量名 <code>zhangsan_host</code>即可</p></li>
+
+<li><p>除去示例中的指定方式，还有如下一些参数可以利用</p>
+
+<blockquote>
+<p><code>ansible_ssh_host</code>：目标主机地址 (比较常用)</p>
+
+<p><code>ansible_ssh_port</code>：目标主机<code>ssh</code>服务端口</p>
+
+<p><code>ansible_ssh_user</code>：目标主机<code>ssh</code>登录用户</p>
+
+<p><code>ansible_ssh_pass</code>：目标主机<code>ssh</code>登录密码</p>
+
+<p><code>ansible_connection</code>：连接类型：<code>local</code>、<code>ssh</code>、<code>paramiko</code></p>
+
+<p><code>ansible_ssh_priveate_key_file</code>：连接所需<code>ssh</code>私钥文件；</p>
+
+<p><code>ansible_shell_type</code>：目标主机的shell类型：<code>ash</code>、<strong>bash</strong>（默认使用的<code>shell</code>，可以结合<code>help</code>查看帮助文档）、<code>ksh</code>（支持42个内部命令）、<code>csh</code>、<code>zsh</code>（最庞大的shell，支持84个内部命令）</p>
+</blockquote></li>
+
+<li><p>正则规则</p></li>
+</ul>
+
+<blockquote>
+<p>[webservers]
+[a:z]bc.example.com
+192.168.1.10[1:5]</p>
+
+<p>在主机处填写对应的正则规则，可以更加方便的映射某个网段下的<code>ip</code>地址</p>
+</blockquote>
+
+<h2 id="ping模块">Ping模块</h2>
+
+<blockquote>
+<p>ping模块可以判断被控主机是否在线， 返回值为changed和ping</p>
+
+<p>首先确保我们 hosts 配置文件内是有 ip 可以用的，如果没有就先去配置下 ip</p>
+</blockquote>
+
+<ul>
+<li><code>ping</code>命令的用法 通常要进入到<code>python</code>安装目录下，找到对应的<code>ansible</code>可执行文件</li>
+</ul>
+
+<blockquote>
+<p>./ansible all -m ping</p>
+</blockquote>
+
+<ul>
+<li>但如果给 ansible 配了 软连接，就简单了，可以在任意路径下启动如下</li>
+</ul>
+
+<blockquote>
+<p>配置软连接</p>
+
+<p>ln -s /usr/local/python3/bin/ansible /usr/bin/ansible</p>
+
+<p>ansible all -m ping</p>
+
+<p>返回值<code>ping</code>如果为<code>pong</code>则代表可以<code>ping</code>通</p>
+
+<p><code>ansible</code>命令行第二个参数可以是一个主机的正则规则，<code>all</code>代表所有<code>hosts</code>文件下<code>IP</code>，也可以指定使用某个分组</p>
+
+<p>ansible onegroup -m ping     &ndash;&gt; 指定 ping 的是 第一组内所有的 ip</p>
+</blockquote>
+
+<h2 id="command模块">Command模块</h2>
+
+<blockquote>
+<p>通过<code>ansible</code>执行命令时，默认使用<code>command</code>模块，该模块主要用于执行<code>linux</code>基础命令</p>
+</blockquote>
+
+<ul>
+<li><p>注意：对比之后的<code>Shell</code>及<code>Script</code>功能模块，<code>Command</code>模块不支持管道</p></li>
+
+<li><p><code>command</code>支持的额外参数</p></li>
+</ul>
+
+<blockquote>
+<p>可以在/usr/local/python3/bin/ 下面运行</p>
+
+<p>./ansible-doc -s command    &ndash;&gt; 能够查看它的文档</p>
+</blockquote>
+
+<p>| 参数      | 解释                         |
+  | &mdash;&mdash;&mdash; | &mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;- |
+  | chdir     | 执行命令时，先进入到该目录下 |
+  | creates   | 给定文件存在时，不执行该命令 |
+  | free_form | 需要执行的脚本               |
+  | removes   | 给定文件存在，则执行该命令   |</p>
+
+<ul>
+<li>对远程主机执行命令</li>
+</ul>
+
+<pre><code class="language-python">  ansible onegroup -m command -a &quot;ifconfig&quot;    # 查看一组 主机 ip号
+</code></pre>
+
+<ul>
+<li>chdir：指定哪个路径下执行命令</li>
+</ul>
+
+<pre><code class="language-python">  ansible onegroup -m command -a &quot;ls chdir=/home/&quot;    # 在 home 目录下执行 ls
+</code></pre>
+
+<ul>
+<li>在被控服务器内指定目录创建一个文件</li>
+</ul>
+
+<pre><code class="language-python">  ansible onegroup -m command -a 'touch demo.py chdir=/home/'   # 在 home 目录下创建 demo.py 文件
+</code></pre>
+
+<h2 id="shell模块">Shell模块</h2>
+
+<blockquote>
+<p><code>shell</code>使用远程主机下的<code>/bin/sh</code>进行命令执行，跟<code>command</code>差不多，支持比<code>command</code>模块更多的命令，常用参数如下</p>
+</blockquote>
+
+<pre><code class="language-python">./ansible-doc -s shell
+# 文档
+</code></pre>
+
+<ul>
+<li>额外参数</li>
+</ul>
+
+<p>| 参数       | 解释                            |
+  | &mdash;&mdash;&mdash;- | &mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;- |
+  | chdir      | 指定进入哪个目录下执行命令      |
+  | creates    | 给定文件存在时，不执行该命令    |
+  | free_form  | 需要执行的脚本                  |
+  | removes    | 给定文件存在，则执行该命令      |
+  | executable | 更换执行命令所使用的<code>shell</code>环境 |</p>
+
+<ul>
+<li>向远程主机里创建一个文件
+
+<br /></li>
+</ul>
+
+<pre><code class="language-python">  # 只是将 command 换成了 shell 
+  ansible onegroup -m shell -a 'touch demo.py chdir=/home/'
+</code></pre>
+
+<h2 id="script模块">Script模块</h2>
+
+<blockquote>
+<p>该模块可以方便运行当前管理机上的脚本直接到远程被控端，而不需要先将脚本拷贝到远程主机后在执行</p>
+</blockquote>
+
+<ul>
+<li>在主控制<code>/</code>目录下创建<code>sh</code>脚本</li>
+</ul>
+
+<pre><code class="language-python">  # vi test.sh 创建一个脚本
+  echo &quot;这是一个脚本&quot;
+</code></pre>
+
+<ul>
+<li>将这个<code>sh</code>脚本通过<code>script</code>模块执行到远程被控端</li>
+</ul>
+
+<pre><code class="language-python">  ansible all -m script -a &quot;/root/text.sh&quot;
+</code></pre>
+
+<h2 id="copy模块">Copy模块</h2>
+
+<blockquote>
+<p><code>copy</code>模块可以方便的将当前主机下文件拷贝到远程主机，类似<code>scp</code>命令等</p>
+</blockquote>
+
+<pre><code class="language-python">./ansible-doc -s copy
+# 文档地址
+</code></pre>
+
+<ul>
+<li>支持的参数</li>
+</ul>
+
+<p>| 参数           | 解释                                                         |
+  | &mdash;&mdash;&mdash;&mdash;&ndash; | &mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash; |
+  | src            | 将本地路径复制到远程服务器; 可以是绝对路径或相对的。如果是一个目录，它将被递归地复制。如果路径以/结尾，则只有该目录下内容被复制到目的地，如果没有使用/来结尾，则包含目录在内的整个内容全部复制 |
+  | content        | 当用<code>content</code>代替<code>src</code>参数的时候，可以把文档的内容设置到特定的值 |
+  | dest           | 目标绝对路径。如果<code>src</code>是一个目录，<code>dest</code>也必须是一个目录。如果<code>dest</code>是不存在的路径，并且如果<code>dest</code>以/结尾或者<code>src</code>是目录，则<code>dest</code>被创建。如果<code>src</code>和<code>dest</code>是文件，如果<code>dest</code>的父目录不存在，任务将失败 |
+  | backup         | 如果文件修改，则在覆盖之前将原文件备份，备份文件包含时间信息 |
+  | directory_mode | 设定目录的权限，在新建时使用，不会影响已存在的目录           |
+  | force          | 当目标内容不同于源时，将替换远程文件。设置为<code>no</code>时，只有在目标文件不存在的情况下才会传输文件 |
+  | group          | 设置文件/目录的所属组                                        |
+  | mode           | 设置文件权限                                                 |
+  | owner          | 设置文件/目录的所属用户                                      |</p>
+
+<ul>
+<li>拷贝 py 文件到远程服务器</li>
+</ul>
+
+<pre><code class="language-python">  # src:是主机的文件路径    dest:是指定被控机的路径
+  ansible onegroup -m copy -a &quot;src=/root/a.py dest=/home/a.py&quot;
+</code></pre>
+
+<h3 id="copy前备份">Copy前备份</h3>
+
+<pre><code class="language-python">ansible all -m copy -a &quot;src=/root/ansible_copy_file backup=yes dest=/home/&quot;
+</code></pre>
+
+<blockquote>
+<p>在第一次拷贝时，由于目标主机还并没有这个文件， 备份动作不生效</p>
+
+<p>在对文件内容进行修改后重新执行该命令拷贝文件</p>
+
+<p>此时目标主机下，不光会有我们上传的拷贝文件，还有之前文件的一个备份</p>
+</blockquote>
+
+<h3 id="覆盖内容">覆盖内容</h3>
+
+<blockquote>
+<p>直接通过<code>content</code>参数指定内容，并对目标主机上已存在的<code>test_copy</code>文件进行覆盖</p>
+</blockquote>
+
+<pre><code class="language-python">ansible all -m copy -a &quot;content='这是命令修改\n'  dest=/home/test_copy&quot;
+</code></pre>
+
+<blockquote>
+<p>这条命令将会把远程主机<code>home</code>目录下的<code>test_copy</code>文件覆盖为我们的<code>content</code>内容</p>
+</blockquote>
+
+<h2 id="stat模块">Stat模块</h2>
+
+<blockquote>
+<p>该模块可以获取远程主机下的文件信息，需要使用<code>path</code>参数指明文件路径</p>
+</blockquote>
+
+<pre><code class="language-python">ansible all -m stat -a &quot;path=/home/test_copy&quot;
+</code></pre>
+
+<h2 id="yum模块">Yum模块</h2>
+
+<blockquote>
+<p>该模块可以对远程主机上的软件安装、卸载进行管理</p>
+</blockquote>
+
+<pre><code class="language-python">./ansible-doc -s copy
+# 文档
+</code></pre>
+
+<ul>
+<li>支持参数</li>
+</ul>
+
+<p>| 参数  | 解释                                                         |
+  | &mdash;&ndash; | &mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash; |
+  | name  | 必须参数，用于指定需要管理的软件包，比如<code>nginx</code>              |
+  | state | 用于指定软件包的状态，默认值为<code>present</code>，表示确保软件包已经安装<br/>除了<code>present</code>，其他可用值有<code>installed</code>、<code>latest</code>、<code>absent</code>、<code>removed</code>
+其中<code>installed</code>与<code>present</code>等效，<code>latest</code>表示安装<code>yum</code>中最新的版本，<code>absent</code>和<code>removed</code>等效，表示删除对应的软件包 |</p>
+
+<ul>
+<li>在远程主机下安装<code>nginx</code></li>
+</ul>
+
+<pre><code class="language-python">  ansible all -m yum -a &quot;name=nginx state=installed&quot;
+</code></pre>
+
+<ul>
+<li>查看<code>nginx</code>服务状态</li>
+</ul>
+
+<pre><code class="language-python">  systemctl status nginx
+  # 查看远程被控机 docker 状态
+  ansible onegroup -m shell -a 'systemctl status docker'
+</code></pre>
+
+<h2 id="service模块">Service模块</h2>
+
+<blockquote>
+<p>该模块主要用于远程服务器上对应的服务管理，比如开启或关闭<code>apache</code>服务等</p>
+</blockquote>
+
+<pre><code class="language-python">./ansible-doc -s yum
+# 文档
+</code></pre>
+
+<ul>
+<li>支持参数</li>
+</ul>
+
+<p>| 参数    | 解释                                                         |
+  | &mdash;&mdash;- | &mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash; |
+  | name    | 需要管理的服务名称，如<code>nginx</code>                                |
+  | state   | 此参数用于指定服务的状态<br/>比如，我们想要启动远程主机中的<code>nginx</code>，则可以将<code>state</code>的值设置为<code>started</code>
+如果想要停止远程主机中的服务，则可以将<code>state</code>的值设置为<code>stopped</code>
+此参数的可用值有<code>started</code>、<code>stopped</code>、<code>restarted</code>、<code>reloaded</code> |
+  | enabled | 此参数用于指定是否将服务设置为开机启动项，设置为<code>yes</code>表示将对应服务设置为开机启动，设置为<code>no</code>表示不会开机启动 |</p>
+
+<ul>
+<li>操作远程主机下的<code>docker</code>服务</li>
+</ul>
+
+<pre><code class="language-python">  ansible all -m service -a &quot;name=docker state=stopped&quot;    # 关闭远程 docker 服务
+  ansible all -m service -a &quot;name=docker state=started&quot;    # 开启远程 docker 服务
+</code></pre>
+
+<h2 id="file模块">File模块</h2>
+
+<blockquote>
+<p><code>file</code>模块可以帮助我们完成一些对文件的基本操作</p>
+
+<p>比如，<strong>创建文件</strong>或<strong>目录</strong>、<strong>删除文件</strong>或<strong>目录</strong>、<strong>修改文件权限</strong>等</p>
+</blockquote>
+
+<pre><code class="language-python">./ansible-doc -s yum
+# 文档
+</code></pre>
+
+<ul>
+<li>支持参数</li>
+</ul>
+
+<p>| 参数  | 解释                                                         |
+  | &mdash;&ndash; | &mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash; |
+  | path  | 指明需要操作的文件或目录路径                                 |
+  | state | 此参数非常灵活，其对应的值需要根据情况设定。比如，我们想要在远程主机上创建<code>/testdir/a/b</code>目录，那么则需要设置<code>path=/testdir/a/b</code>，但是，我们无法从<code>/testdir/a/b</code>这个路径看出<code>b</code>是一个文件还是一个目录，<code>ansible</code>也同样无法单单从一个字符串就知道你要创建文件还是目录，所以，我们需要通过<code>state</code>参数进行说明<br/>当我们想要创建的<code>/testdir/a/b</code>是一个目录时，需要将<code>state</code>的值设置为<code>directory</code>，<code>directory</code>为目录之意，当它与<code>path</code>结合，<code>ansible</code>就能知道我们要操作的目标是一个目录
+当我们想要操作的<code>/testdir/a/b</code>是一个文件时，则需要将<code>state</code>的值设置为<code>touch</code>
+当我们想要创建软链接文件时，需将<code>state</code>设置为<code>link</code>；想要创建硬链接文件时，需要将<code>state</code>设置为<code>hard</code>
+当我们想要删除一个文件时（删除时不用区分目标是文件、目录、还是链接），则需要将<code>state</code>的值设置为<code>absent</code>，<code>absent</code>为缺席之意，当我们想让操作的目标”缺席”时，就表示我们想要删除目标 |
+  | src   | <code>src</code>参数：当<code>state</code>设置为<code>link</code>或者<code>hard</code>时，表示我们想要创建一个软链或者硬链<br/>所以，我们必须指明软链或硬链链接的哪个文件，通过<code>src</code>参数即可指定链接源 |
+  | force | 当<code>state=link</code>的时候，可配合此参数强制创建链接文件，当<code>force=yes</code>时，表示强制创建链接文件。不过强制创建链接文件分为三种情况<br/>情况一：当要创建的链接文件指向的源文件并不存在时，使用此参数，可以先强制创建出链接文件
+情况二：当要创建链接文件的目录中已经存在与链接文件同名的文件时，将<code>force</code>设置为<code>yes</code>，会将同名文件覆盖为链接文件，相当于删除同名文件，创建链接文件
+情况三：当要创建链接文件的目录中已经存在与链接文件同名的文件，并且链接文件指向的源文件也不存在，这时会强制替换同名文件为链接文件 |
+  | owner | 指定文件所属用户                                             |
+  | group | 指定文件所属组                                               |
+  | mode  | 指定文件权限                                                 |</p>
+
+<ul>
+<li>将远程主机下的<code>Python3</code>创建软连接到<code>home</code>目录</li>
+</ul>
+
+<pre><code class="language-python">  # path:是要放在哪个路径下    src:是要操作的程序路径    state:是指定什么形式
+  ansible all -m file -a &quot;path=/home/python3 state=link src=/usr/local/python3/bin/python3&quot;
+</code></pre>
+
+<ul>
+<li>在比如我们在被控机上指定路径创建一个 文件夹</li>
+</ul>
+
+<pre><code class="language-python">  # 在远程机上的 home 路径下创建一个 wangxinxin 的文件夹
+  ansible all -m file -a &quot;path=/home/wangxinxin state=directory&quot;
+</code></pre>
+
+              
+            </div>
+          </div>
+          <div id="post-footer" class="post-footer main-content-wrap">
+            
+              
+                
+                
+                  <div class="post-footer-tags">
+                    <span class="text-color-light text-small">标签</span><br/>
+                    
+  <a class="tag tag--primary tag--small" href="/tags/ansible/">Ansible</a>
+
+                  </div>
+                
+              
+            
+            <div class="post-actions-wrap">
+  
+      <nav >
+        <ul class="post-actions post-action-nav">
+          
+            <li class="post-action">
+              
+                <a class="post-action-btn btn btn--default tooltip--top" href="/2019/02/ansible-playbook/" data-tooltip="Ansible-PlayBook">
+              
+                  <i class="fa fa-angle-left"></i>
+                  <span class="hide-xs hide-sm text-small icon-ml">下一篇</span>
+                </a>
+            </li>
+            <li class="post-action">
+              
+                <a class="post-action-btn btn btn--default tooltip--top" href="/2019/02/paramiko/" data-tooltip="Paramiko">
+              
+                  <span class="hide-xs hide-sm text-small icon-mr">上一篇</span>
+                  <i class="fa fa-angle-right"></i>
+                </a>
+            </li>
+          
+        </ul>
+      </nav>
+    <ul class="post-actions post-action-share" >
+      
+        <li class="post-action hide-lg hide-md hide-sm">
+          <a class="post-action-btn btn btn--default btn-open-shareoptions" href="#btn-open-shareoptions">
+            <i class="fa fa-share-alt"></i>
+          </a>
+        </li>
+        
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://www.facebook.com/sharer/sharer.php?u=/2019/02/ansible%E6%89%B9%E9%87%8F%E8%BF%90%E7%BB%B4/">
+              <i class="fa fa-facebook-official"></i>
+            </a>
+          </li>
+        
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://twitter.com/intent/tweet?text=/2019/02/ansible%E6%89%B9%E9%87%8F%E8%BF%90%E7%BB%B4/">
+              <i class="fa fa-twitter"></i>
+            </a>
+          </li>
+        
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://plus.google.com/share?url=/2019/02/ansible%E6%89%B9%E9%87%8F%E8%BF%90%E7%BB%B4/">
+              <i class="fa fa-google-plus"></i>
+            </a>
+          </li>
+        
+      
+      
+        <li class="post-action">
+          <a class="post-action-btn btn btn--default" href="#disqus_thread">
+            <i class="fa fa-comment-o"></i>
+          </a>
+        </li>
+      
+      <li class="post-action">
+        
+          <a class="post-action-btn btn btn--default" href="#">
+        
+          <i class="fa fa-list"></i>
+        </a>
+      </li>
+    </ul>
+  
+</div>
+
+            
+              
+                <div id="disqus_thread">
+  <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+              
+            
+          </div>
+        </article>
+        <footer id="footer" class="main-content-wrap">
+  <span class="copyrights">
+    &copy; 2019 SuJiankang. All Rights Reserved
+  </span>
+</footer>
+
+      </div>
+      <div id="bottom-bar" class="post-bottom-bar" data-behavior="4">
+        <div class="post-actions-wrap">
+  
+      <nav >
+        <ul class="post-actions post-action-nav">
+          
+            <li class="post-action">
+              
+                <a class="post-action-btn btn btn--default tooltip--top" href="/2019/02/ansible-playbook/" data-tooltip="Ansible-PlayBook">
+              
+                  <i class="fa fa-angle-left"></i>
+                  <span class="hide-xs hide-sm text-small icon-ml">下一篇</span>
+                </a>
+            </li>
+            <li class="post-action">
+              
+                <a class="post-action-btn btn btn--default tooltip--top" href="/2019/02/paramiko/" data-tooltip="Paramiko">
+              
+                  <span class="hide-xs hide-sm text-small icon-mr">上一篇</span>
+                  <i class="fa fa-angle-right"></i>
+                </a>
+            </li>
+          
+        </ul>
+      </nav>
+    <ul class="post-actions post-action-share" >
+      
+        <li class="post-action hide-lg hide-md hide-sm">
+          <a class="post-action-btn btn btn--default btn-open-shareoptions" href="#btn-open-shareoptions">
+            <i class="fa fa-share-alt"></i>
+          </a>
+        </li>
+        
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://www.facebook.com/sharer/sharer.php?u=/2019/02/ansible%E6%89%B9%E9%87%8F%E8%BF%90%E7%BB%B4/">
+              <i class="fa fa-facebook-official"></i>
+            </a>
+          </li>
+        
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://twitter.com/intent/tweet?text=/2019/02/ansible%E6%89%B9%E9%87%8F%E8%BF%90%E7%BB%B4/">
+              <i class="fa fa-twitter"></i>
+            </a>
+          </li>
+        
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://plus.google.com/share?url=/2019/02/ansible%E6%89%B9%E9%87%8F%E8%BF%90%E7%BB%B4/">
+              <i class="fa fa-google-plus"></i>
+            </a>
+          </li>
+        
+      
+      
+        <li class="post-action">
+          <a class="post-action-btn btn btn--default" href="#disqus_thread">
+            <i class="fa fa-comment-o"></i>
+          </a>
+        </li>
+      
+      <li class="post-action">
+        
+          <a class="post-action-btn btn btn--default" href="#">
+        
+          <i class="fa fa-list"></i>
+        </a>
+      </li>
+    </ul>
+  
+</div>
+
+      </div>
+      <div id="share-options-bar" class="share-options-bar" data-behavior="4">
+  <i id="btn-close-shareoptions" class="fa fa-close"></i>
+  <ul class="share-options">
+    
+      <li class="share-option">
+        <a class="share-option-btn" target="new" href="https://www.facebook.com/sharer/sharer.php?u=%2F2019%2F02%2Fansible%25E6%2589%25B9%25E9%2587%258F%25E8%25BF%2590%25E7%25BB%25B4%2F">
+          <i class="fa fa-facebook-official"></i><span>分享到 Facebook</span>
+        </a>
+      </li>
+    
+      <li class="share-option">
+        <a class="share-option-btn" target="new" href="https://twitter.com/intent/tweet?text=%2F2019%2F02%2Fansible%25E6%2589%25B9%25E9%2587%258F%25E8%25BF%2590%25E7%25BB%25B4%2F">
+          <i class="fa fa-twitter"></i><span>分享到 Twitter</span>
+        </a>
+      </li>
+    
+      <li class="share-option">
+        <a class="share-option-btn" target="new" href="https://plus.google.com/share?url=%2F2019%2F02%2Fansible%25E6%2589%25B9%25E9%2587%258F%25E8%25BF%2590%25E7%25BB%25B4%2F">
+          <i class="fa fa-google-plus"></i><span>分享到 Google&#43;</span>
+        </a>
+      </li>
+    
+  </ul>
+</div>
+<div id="share-options-mask" class="share-options-mask"></div>
+    </div>
+    
+    <div id="about">
+  <div id="about-card">
+    <div id="about-btn-close">
+      <i class="fa fa-remove"></i>
+    </div>
+    
+      <img id="about-card-picture" src="https://www.gravatar.com/avatar/d09dc2d7aa5c467519e8af89f7b3d94c?s=110" alt="作者的图片" />
+    
+    <h4 id="about-card-name">SuJiankang</h4>
+    
+      <div id="about-card-bio"><strong>自古英雄出炼狱 从来富贵入凡尘</strong></div>
+    
+    
+      <div id="about-card-job">
+        <i class="fa fa-briefcase"></i>
+        <br/>
+        Your job title
+      </div>
+    
+    
+      <div id="about-card-location">
+        <i class="fa fa-map-marker"></i>
+        <br/>
+        France
+      </div>
+    
+  </div>
+</div>
+
+    
+
+    
+  
+    
+      <div id="cover" style="background-image:url('/images/cover.jpg');"></div>
+    
+  
+
+
+    
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.4/jquery.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js" integrity="sha256-/BfiIkHlHoVihZdc6TFuj7MmJ0TWcWsMXkeDFwhi0zw=" crossorigin="anonymous"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.7/js/jquery.fancybox.min.js" integrity="sha256-GEAnjcTqVP+vBp3SSc8bEDQqvWAZMiHyUSIorrWwH50=" crossorigin="anonymous"></script>
+
+
+<script src="/js/script-pcw6v3xilnxydl1vddzazdverrnn9ctynvnxgwho987mfyqkuylcb1nlt.min.js"></script>
+
+
+<script lang="javascript">
+window.onload = updateMinWidth;
+window.onresize = updateMinWidth;
+document.getElementById("sidebar").addEventListener("transitionend", updateMinWidth);
+function updateMinWidth() {
+  var sidebar = document.getElementById("sidebar");
+  var main = document.getElementById("main");
+  main.style.minWidth = "";
+  var w1 = getComputedStyle(main).getPropertyValue("min-width");
+  var w2 = getComputedStyle(sidebar).getPropertyValue("width");
+  var w3 = getComputedStyle(sidebar).getPropertyValue("left");
+  main.style.minWidth = `calc(${w1} - ${w2} - ${w3})`;
+}
+</script>
+
+<script>
+$(document).ready(function() {
+  hljs.configure({ classPrefix: '', useBR: false });
+  $('pre.code-highlight > code, pre > code').each(function(i, block) {
+    if (!$(this).hasClass('codeblock')) {
+      $(this).addClass('codeblock');
+    }
+    hljs.highlightBlock(block);
+  });
+});
+</script>
+
+
+  
+    
+      <script>
+        var disqus_config = function () {
+          this.page.url = '\/2019\/02\/ansible%E6%89%B9%E9%87%8F%E8%BF%90%E7%BB%B4\/';
+          
+            this.page.identifier = '\/2019\/02\/ansible%E6%89%B9%E9%87%8F%E8%BF%90%E7%BB%B4\/'
+          
+        };
+        (function() {
+          
+          
+          if (window.location.hostname == "localhost") {
+            return;
+          }
+          var d = document, s = d.createElement('script');
+          var disqus_shortname = 'hugo-tranquilpeak-theme';
+          s.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+
+          s.setAttribute('data-timestamp', +new Date());
+          (d.head || d.body).appendChild(s);
+        })();
+      </script>
+    
+  
+
+
+
+
+    
+  </body>
+</html>
+

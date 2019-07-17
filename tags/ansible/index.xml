@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Ansible on HOME</title>
+    <link>/tags/ansible/</link>
+    <description>Recent content in Ansible on HOME</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Fri, 22 Feb 2019 00:00:00 +0000</lastBuildDate>
+    
+	<atom:link href="/tags/ansible/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Ansible-PlayBook</title>
+      <link>/2019/02/ansible-playbook/</link>
+      <pubDate>Fri, 22 Feb 2019 00:00:00 +0000</pubDate>
+      
+      <guid>/2019/02/ansible-playbook/</guid>
+      <description>ansible-playbook  在之前的ansible使用中，我们都是通过命令行的形式实现对应远程主机的响应管理
+但这样的工作方式功能上来说还是有一定的局限性，并且维护并不方便，引入playbook可以更加方便我们对于功能的编写维护，并且具有良好的灵活性
+playbook也可以理解为命令行功能的一个合集脚本，用来编写更加复杂的业务
+ yaml语法  Yaml为通用数据串行化格式语法，简洁而强大
+ansible中的配置文件就采用了Yaml格式语法存在，以下就是对Yaml语法的介绍
+  yaml基本语法规则如下  大小写敏感 使用缩进表示层级关系 缩进的空格数目不唯一，只要相同层级元素左侧对齐即可 #号表示注释  yaml语法支持的数据结构有三种：  键值对：相当于hash表映射关系，字典 序列：相当于数组或列表 纯量（标量）：单独的值，无法继续拆分，比如字符串、整数、浮点数、Null、布尔值（true、false）   字符串  字符串定义时，默认可以不使用引号标注  str_1: abc {&#39;str_1&#39;: &#39;abc&#39;,} # 对应Python中数据类型   如字符串中出现特殊字符或包含空格，需要使用引号标注  str_2: &#39;abc: bbb&#39; {&#39;str_2&#39;: &#39;abc: bbb&#39;} # 对应Python中数据类型   双引号不会对字符串中特殊字符进行转义  str_3: &#39;abc: \n bbb&#39; str_4: &amp;quot;abc: \n bbb&amp;quot; {&#39;abc: \\n bbb&#39;, &#39;str_4&#39;: &#39;abc: \n bbb&#39;} # 对应Python中数据类型   单引号字符串还有引号，需要使用两个单引号进行转义  `str_5: &#39;a&#39;&#39;b&#39;{&#39;str_5&#39;: &amp;quot;a&#39;b&amp;quot;} # 对应Python中数据类型`   当字符串需要换行时，从第二行开始的下面几行，需要有对齐缩进，换行会被解释为空格，其余缩进前空格会忽略  str_6: &#39;abc aaa bbb ccc&#39; {&#39;str_6&#39;: &#39;abc aaa bbb ccc&#39;} # 对应Python中数据类型   多行字符串可以使用 |保留换行符形成段落，或使用&amp;gt;将换行符替换为空格  str_7: &amp;gt; bbb aaa str_8: | bbb aaa {&#39;str_7&#39;: &#39;bbb aaa\n&#39;, &#39;str_8&#39;: &#39;bbb\naaa\n&#39;} # 对应Python中数据类型   +表示保留字符串末位的换行，-表示删除字符串末位的换行  `str_9: |+ aaabbbstr_10: |- aaabbb&#39;str_9&#39;: &#39;aaabbb\n&#39;, &#39;str_10&#39;: &#39;aaabbb&#39;} # 对应Python中数据类型`  键值对  Yaml中的键值对数据通过冒号定义，冒号后的数据与冒号之间存在一个空格  dict_1: a dict_2: { 1 : a } dict_3: a: 1 b: 2 {&#39;dict_1&#39;: &#39;a&#39;, &#39;dict_2&#39;: {1: &#39;a&#39;}, &#39;dict_3&#39;: {&#39;a&#39;: 1, &#39;b&#39;: 2}} # 对应Python中数据类型  序列 - list_1 - list_2 - - a_1 - a_2 [&#39;list_1&#39;, &#39;list_2&#39;, [&#39;a_1&#39;, &#39;a_2&#39;]] # 对应Python中数据类型  数据嵌套使用 `- test_1: - a - b- test_2: var_1: true var_2: 0.</description>
+    </item>
+    
+    <item>
+      <title>Ansible批量运维</title>
+      <link>/2019/02/ansible%E6%89%B9%E9%87%8F%E8%BF%90%E7%BB%B4/</link>
+      <pubDate>Wed, 13 Feb 2019 00:00:00 +0000</pubDate>
+      
+      <guid>/2019/02/ansible%E6%89%B9%E9%87%8F%E8%BF%90%E7%BB%B4/</guid>
+      <description>Ansible ## Ansible
+ ansible基于Python开发，集合了众多运维工具（puppet、cfengine、chef、func、fabric）的优点，实现了批量系统配置、批量程序部署、批量运行命令等功能
+在使用时，ansible不需要在被控端安装客户端，ansible工作基于ssh，只要被控端服务器有ssh服务，加上一个Python环境，就可以使用ansible
+另外，ansible在15年的时候，以1.5亿美元被RedHat公司收购，新版的RedHat操作系统内置ansible软件，很厉害的
+ Ansible部署  ansible安装可以通过源码，yum源以及python所提供的pip管理工具进行安装
+  使用pip管理工具进行安装  pip3 install ansible   使用yum进行安装  yum install epel-release # 安装扩展源 yum install ansible  Ansible配置  安装之后，默认ansible工具的配置文件在/etc/ansible下
+如果通过pip命令安装，是没有这个目录的，需要我们手动创建，其中所需主要配置文件如下
+  ansible.cfg：ansible主配置文件 hosts：被管理主机IP或者主机名列表文件，也是比较重要的一个文件 roles：角色或插件目录（默认为空）   此外除了默认的ansible的配置文件路径，关于ansible的配置文件路径选择还有如下几种，按照顺序表示优先级
+  export ANSIBLE_CONFI：指定的全局变量 ./ansible.cfg：当前目录下的配置文件 ~/.ansible.cfg：当前用户目录下的配置文件 /etc/ansible/ansible.cfg：etc目录下的配置文件   如果以上四个路径下均没有cfg配置文件，则使用默认配置
+如果通过源进行安装，那么在/etc/ansible/目录下会自动包含ansible.cfg文件
+也可以通过访问在线的配置文件地址进行获取
+  配置文件示例   https://raw.githubusercontent.com/ansible/ansible/devel/examples/ansible.cfg
+  ansible配置文件中可以进行ansible的各项参数的设置，包括并发线程数量、用户、模块路径、调优等等
+ defaluts：默认的配置项，一般不需要修改 privilege_escalation：执行命令的用户权限设置 paramiko_connection：paramiko插件设置 ssh_connection：ssh连接设置  默认ansible使用hosts文件列举监控主机，格式为ini，可以进行IP的分组以及IP规则设置，比如如下的例子</description>
+    </item>
+    
+  </channel>
+</rss>

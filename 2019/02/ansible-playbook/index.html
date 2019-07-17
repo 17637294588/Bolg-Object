@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    
+    <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="generator" content="Hugo 0.55.6 with theme Tranquilpeak 0.4.3-SNAPSHOT">
+<meta name="author" content="SuJiankang">
+<meta name="keywords" content=", categories, tags">
+<meta name="description" content="ansible-playbook  在之前的ansible使用中，我们都是通过命令行的形式实现对应远程主机的响应管理
+但这样的工作方式功能上来说还是有一定的局限性，并且维护并不方便，引入playbook可以更加方便我们对于功能的编写维护，并且具有良好的灵活性
+playbook也可以理解为命令行功能的一个合集脚本，用来编写更加复杂的业务
+ yaml语法  Yaml为通用数据串行化格式语法，简洁而强大
+ansible中的配置文件就采用了Yaml格式语法存在，以下就是对Yaml语法的介绍
+  yaml基本语法规则如下  大小写敏感 使用缩进表示层级关系 缩进的空格数目不唯一，只要相同层级元素左侧对齐即可 #号表示注释  yaml语法支持的数据结构有三种：  键值对：相当于hash表映射关系，字典 序列：相当于数组或列表 纯量（标量）：单独的值，无法继续拆分，比如字符串、整数、浮点数、Null、布尔值（true、false）   字符串  字符串定义时，默认可以不使用引号标注  str_1: abc {&#39;str_1&#39;: &#39;abc&#39;,} # 对应Python中数据类型   如字符串中出现特殊字符或包含空格，需要使用引号标注  str_2: &#39;abc: bbb&#39; {&#39;str_2&#39;: &#39;abc: bbb&#39;} # 对应Python中数据类型   双引号不会对字符串中特殊字符进行转义  str_3: &#39;abc: \n bbb&#39; str_4: &quot;abc: \n bbb&quot; {&#39;abc: \\n bbb&#39;, &#39;str_4&#39;: &#39;abc: \n bbb&#39;} # 对应Python中数据类型   单引号字符串还有引号，需要使用两个单引号进行转义  `str_5: &#39;a&#39;&#39;b&#39;{&#39;str_5&#39;: &quot;a&#39;b&quot;} # 对应Python中数据类型`   当字符串需要换行时，从第二行开始的下面几行，需要有对齐缩进，换行会被解释为空格，其余缩进前空格会忽略  str_6: &#39;abc aaa bbb ccc&#39; {&#39;str_6&#39;: &#39;abc aaa bbb ccc&#39;} # 对应Python中数据类型   多行字符串可以使用 |保留换行符形成段落，或使用&gt;将换行符替换为空格  str_7: &gt; bbb aaa str_8: | bbb aaa {&#39;str_7&#39;: &#39;bbb aaa\n&#39;, &#39;str_8&#39;: &#39;bbb\naaa\n&#39;} # 对应Python中数据类型   &#43;表示保留字符串末位的换行，-表示删除字符串末位的换行  `str_9: |&#43; aaabbbstr_10: |- aaabbb&#39;str_9&#39;: &#39;aaabbb\n&#39;, &#39;str_10&#39;: &#39;aaabbb&#39;} # 对应Python中数据类型`  键值对  Yaml中的键值对数据通过冒号定义，冒号后的数据与冒号之间存在一个空格  dict_1: a dict_2: { 1 : a } dict_3: a: 1 b: 2 {&#39;dict_1&#39;: &#39;a&#39;, &#39;dict_2&#39;: {1: &#39;a&#39;}, &#39;dict_3&#39;: {&#39;a&#39;: 1, &#39;b&#39;: 2}} # 对应Python中数据类型  序列 - list_1 - list_2 - - a_1 - a_2 [&#39;list_1&#39;, &#39;list_2&#39;, [&#39;a_1&#39;, &#39;a_2&#39;]] # 对应Python中数据类型  数据嵌套使用 `- test_1: - a - b- test_2: var_1: true var_2: 0.">
+
+
+<meta property="og:description" content="ansible-playbook  在之前的ansible使用中，我们都是通过命令行的形式实现对应远程主机的响应管理
+但这样的工作方式功能上来说还是有一定的局限性，并且维护并不方便，引入playbook可以更加方便我们对于功能的编写维护，并且具有良好的灵活性
+playbook也可以理解为命令行功能的一个合集脚本，用来编写更加复杂的业务
+ yaml语法  Yaml为通用数据串行化格式语法，简洁而强大
+ansible中的配置文件就采用了Yaml格式语法存在，以下就是对Yaml语法的介绍
+  yaml基本语法规则如下  大小写敏感 使用缩进表示层级关系 缩进的空格数目不唯一，只要相同层级元素左侧对齐即可 #号表示注释  yaml语法支持的数据结构有三种：  键值对：相当于hash表映射关系，字典 序列：相当于数组或列表 纯量（标量）：单独的值，无法继续拆分，比如字符串、整数、浮点数、Null、布尔值（true、false）   字符串  字符串定义时，默认可以不使用引号标注  str_1: abc {&#39;str_1&#39;: &#39;abc&#39;,} # 对应Python中数据类型   如字符串中出现特殊字符或包含空格，需要使用引号标注  str_2: &#39;abc: bbb&#39; {&#39;str_2&#39;: &#39;abc: bbb&#39;} # 对应Python中数据类型   双引号不会对字符串中特殊字符进行转义  str_3: &#39;abc: \n bbb&#39; str_4: &quot;abc: \n bbb&quot; {&#39;abc: \\n bbb&#39;, &#39;str_4&#39;: &#39;abc: \n bbb&#39;} # 对应Python中数据类型   单引号字符串还有引号，需要使用两个单引号进行转义  `str_5: &#39;a&#39;&#39;b&#39;{&#39;str_5&#39;: &quot;a&#39;b&quot;} # 对应Python中数据类型`   当字符串需要换行时，从第二行开始的下面几行，需要有对齐缩进，换行会被解释为空格，其余缩进前空格会忽略  str_6: &#39;abc aaa bbb ccc&#39; {&#39;str_6&#39;: &#39;abc aaa bbb ccc&#39;} # 对应Python中数据类型   多行字符串可以使用 |保留换行符形成段落，或使用&gt;将换行符替换为空格  str_7: &gt; bbb aaa str_8: | bbb aaa {&#39;str_7&#39;: &#39;bbb aaa\n&#39;, &#39;str_8&#39;: &#39;bbb\naaa\n&#39;} # 对应Python中数据类型   &#43;表示保留字符串末位的换行，-表示删除字符串末位的换行  `str_9: |&#43; aaabbbstr_10: |- aaabbb&#39;str_9&#39;: &#39;aaabbb\n&#39;, &#39;str_10&#39;: &#39;aaabbb&#39;} # 对应Python中数据类型`  键值对  Yaml中的键值对数据通过冒号定义，冒号后的数据与冒号之间存在一个空格  dict_1: a dict_2: { 1 : a } dict_3: a: 1 b: 2 {&#39;dict_1&#39;: &#39;a&#39;, &#39;dict_2&#39;: {1: &#39;a&#39;}, &#39;dict_3&#39;: {&#39;a&#39;: 1, &#39;b&#39;: 2}} # 对应Python中数据类型  序列 - list_1 - list_2 - - a_1 - a_2 [&#39;list_1&#39;, &#39;list_2&#39;, [&#39;a_1&#39;, &#39;a_2&#39;]] # 对应Python中数据类型  数据嵌套使用 `- test_1: - a - b- test_2: var_1: true var_2: 0.">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Ansible-PlayBook">
+<meta name="twitter:title" content="Ansible-PlayBook">
+<meta property="og:url" content="/2019/02/ansible-playbook/">
+<meta property="twitter:url" content="/2019/02/ansible-playbook/">
+<meta property="og:site_name" content="HOME">
+<meta property="og:description" content="ansible-playbook  在之前的ansible使用中，我们都是通过命令行的形式实现对应远程主机的响应管理
+但这样的工作方式功能上来说还是有一定的局限性，并且维护并不方便，引入playbook可以更加方便我们对于功能的编写维护，并且具有良好的灵活性
+playbook也可以理解为命令行功能的一个合集脚本，用来编写更加复杂的业务
+ yaml语法  Yaml为通用数据串行化格式语法，简洁而强大
+ansible中的配置文件就采用了Yaml格式语法存在，以下就是对Yaml语法的介绍
+  yaml基本语法规则如下  大小写敏感 使用缩进表示层级关系 缩进的空格数目不唯一，只要相同层级元素左侧对齐即可 #号表示注释  yaml语法支持的数据结构有三种：  键值对：相当于hash表映射关系，字典 序列：相当于数组或列表 纯量（标量）：单独的值，无法继续拆分，比如字符串、整数、浮点数、Null、布尔值（true、false）   字符串  字符串定义时，默认可以不使用引号标注  str_1: abc {&#39;str_1&#39;: &#39;abc&#39;,} # 对应Python中数据类型   如字符串中出现特殊字符或包含空格，需要使用引号标注  str_2: &#39;abc: bbb&#39; {&#39;str_2&#39;: &#39;abc: bbb&#39;} # 对应Python中数据类型   双引号不会对字符串中特殊字符进行转义  str_3: &#39;abc: \n bbb&#39; str_4: &quot;abc: \n bbb&quot; {&#39;abc: \\n bbb&#39;, &#39;str_4&#39;: &#39;abc: \n bbb&#39;} # 对应Python中数据类型   单引号字符串还有引号，需要使用两个单引号进行转义  `str_5: &#39;a&#39;&#39;b&#39;{&#39;str_5&#39;: &quot;a&#39;b&quot;} # 对应Python中数据类型`   当字符串需要换行时，从第二行开始的下面几行，需要有对齐缩进，换行会被解释为空格，其余缩进前空格会忽略  str_6: &#39;abc aaa bbb ccc&#39; {&#39;str_6&#39;: &#39;abc aaa bbb ccc&#39;} # 对应Python中数据类型   多行字符串可以使用 |保留换行符形成段落，或使用&gt;将换行符替换为空格  str_7: &gt; bbb aaa str_8: | bbb aaa {&#39;str_7&#39;: &#39;bbb aaa\n&#39;, &#39;str_8&#39;: &#39;bbb\naaa\n&#39;} # 对应Python中数据类型   &#43;表示保留字符串末位的换行，-表示删除字符串末位的换行  `str_9: |&#43; aaabbbstr_10: |- aaabbb&#39;str_9&#39;: &#39;aaabbb\n&#39;, &#39;str_10&#39;: &#39;aaabbb&#39;} # 对应Python中数据类型`  键值对  Yaml中的键值对数据通过冒号定义，冒号后的数据与冒号之间存在一个空格  dict_1: a dict_2: { 1 : a } dict_3: a: 1 b: 2 {&#39;dict_1&#39;: &#39;a&#39;, &#39;dict_2&#39;: {1: &#39;a&#39;}, &#39;dict_3&#39;: {&#39;a&#39;: 1, &#39;b&#39;: 2}} # 对应Python中数据类型  序列 - list_1 - list_2 - - a_1 - a_2 [&#39;list_1&#39;, &#39;list_2&#39;, [&#39;a_1&#39;, &#39;a_2&#39;]] # 对应Python中数据类型  数据嵌套使用 `- test_1: - a - b- test_2: var_1: true var_2: 0.">
+<meta name="twitter:description" content="ansible-playbook  在之前的ansible使用中，我们都是通过命令行的形式实现对应远程主机的响应管理
+但这样的工作方式功能上来说还是有一定的局限性，并且维护并不方便，引入playbook可以更加方便我们对于功能的编写维护，并且具有良好的灵活性
+playbook也可以理解为命令行功能的一个合集脚本，用来编写更加复杂的业务
+ yaml语法  Yaml为通用数据串行化格式语法，简洁而强大
+ansible中的配置文件就采用了Yaml格式语法存在，以下就是对Yaml语法的介绍
+  yaml基本语法规则如下  大小写敏感 使用缩进表示层级关系 缩进的空格数目不唯一，只要相同层级元素左侧对齐即可 #号表示注释  yaml语法支持的数据结构有三种：  键值对：相当于hash表映射关系，字典 序列：相当于数组或列表 纯量（标量）：单独的值，无法继续拆分，比如字符串、整数、浮点数、Null、布尔值（true、false）   字符串  字符串定义时，默认可以不使用引号标注  str_1: abc {&#39;str_1&#39;: &#39;abc&#39;,} # 对应Python中数据类型   如字符串中出现特殊字符或包含空格，需要使用引号标注  str_2: &#39;abc: bbb&#39; {&#39;str_2&#39;: &#39;abc: bbb&#39;} # 对应Python中数据类型   双引号不会对字符串中特殊字符进行转义  str_3: &#39;abc: \n bbb&#39; str_4: &quot;abc: \n bbb&quot; {&#39;abc: \\n bbb&#39;, &#39;str_4&#39;: &#39;abc: \n bbb&#39;} # 对应Python中数据类型   单引号字符串还有引号，需要使用两个单引号进行转义  `str_5: &#39;a&#39;&#39;b&#39;{&#39;str_5&#39;: &quot;a&#39;b&quot;} # 对应Python中数据类型`   当字符串需要换行时，从第二行开始的下面几行，需要有对齐缩进，换行会被解释为空格，其余缩进前空格会忽略  str_6: &#39;abc aaa bbb ccc&#39; {&#39;str_6&#39;: &#39;abc aaa bbb ccc&#39;} # 对应Python中数据类型   多行字符串可以使用 |保留换行符形成段落，或使用&gt;将换行符替换为空格  str_7: &gt; bbb aaa str_8: | bbb aaa {&#39;str_7&#39;: &#39;bbb aaa\n&#39;, &#39;str_8&#39;: &#39;bbb\naaa\n&#39;} # 对应Python中数据类型   &#43;表示保留字符串末位的换行，-表示删除字符串末位的换行  `str_9: |&#43; aaabbbstr_10: |- aaabbb&#39;str_9&#39;: &#39;aaabbb\n&#39;, &#39;str_10&#39;: &#39;aaabbb&#39;} # 对应Python中数据类型`  键值对  Yaml中的键值对数据通过冒号定义，冒号后的数据与冒号之间存在一个空格  dict_1: a dict_2: { 1 : a } dict_3: a: 1 b: 2 {&#39;dict_1&#39;: &#39;a&#39;, &#39;dict_2&#39;: {1: &#39;a&#39;}, &#39;dict_3&#39;: {&#39;a&#39;: 1, &#39;b&#39;: 2}} # 对应Python中数据类型  序列 - list_1 - list_2 - - a_1 - a_2 [&#39;list_1&#39;, &#39;list_2&#39;, [&#39;a_1&#39;, &#39;a_2&#39;]] # 对应Python中数据类型  数据嵌套使用 `- test_1: - a - b- test_2: var_1: true var_2: 0.">
+<meta property="og:locale" content="zh-cn">
+
+  
+    <meta property="article:published_time" content="2019-02-22T00:00:00">
+  
+  
+    <meta property="article:modified_time" content="2019-02-22T00:00:00">
+  
+  
+  
+    
+      <meta property="article:section" content="Linux">
+    
+      <meta property="article:section" content="features">
+    
+  
+  
+    
+      <meta property="article:tag" content="Ansible">
+    
+  
+
+
+<meta name="twitter:card" content="summary">
+
+
+
+
+
+
+
+  <meta property="og:image" content="//d1u9biwaxjngwg.cloudfront.net/cover-image-showcase/city-750.jpg">
+  <meta property="twitter:image" content="//d1u9biwaxjngwg.cloudfront.net/cover-image-showcase/city-750.jpg">
+
+
+  <meta property="og:image" content="//d1u9biwaxjngwg.cloudfront.net/cover-image-showcase/city.jpg">
+  <meta property="twitter:image" content="//d1u9biwaxjngwg.cloudfront.net/cover-image-showcase/city.jpg">
+
+
+
+
+  <meta property="og:image" content="https://www.gravatar.com/avatar/d09dc2d7aa5c467519e8af89f7b3d94c?s=640">
+  <meta property="twitter:image" content="https://www.gravatar.com/avatar/d09dc2d7aa5c467519e8af89f7b3d94c?s=640">
+
+
+    <title>Ansible-PlayBook</title>
+
+    <link rel="icon" href="/favicon.png">
+    
+
+    
+
+    <link rel="canonical" href="/2019/02/ansible-playbook/">
+
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha256-eZrrJcwDc/3uDhsdt61sL2oOBY362qM3lon1gyExkL0=" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.4/jquery.fancybox.min.css" integrity="sha256-vuXZ9LGmmwtjqFX1F+EKin1ThZMub58gKULUyf0qECk=" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.4/helpers/jquery.fancybox-thumbs.min.css" integrity="sha256-SEa4XYAHihTcEP1f5gARTB2K26Uk8PsndQYHQC1f4jU=" crossorigin="anonymous" />
+    
+    
+    <link rel="stylesheet" href="/css/style-twzjdbqhmnnacqs0pwwdzcdbt8yhv8giawvjqjmyfoqnvazl0dalmnhdkvp7.min.css" />
+    
+    
+
+    
+      
+    
+    
+  </head>
+
+  <body>
+    <div id="blog">
+      <header id="header" data-behavior="4">
+  <i id="btn-open-sidebar" class="fa fa-lg fa-bars"></i>
+  <div class="header-title">
+    <a class="header-title-link" href="/">HOME</a>
+  </div>
+  
+    
+      <a class="header-right-picture "
+         href="/#about">
+    
+    
+    
+      
+        <img class="header-picture" src="https://www.gravatar.com/avatar/d09dc2d7aa5c467519e8af89f7b3d94c?s=90" alt="作者的图片" />
+      
+    
+    </a>
+  
+</header>
+
+      <nav id="sidebar" data-behavior="4">
+  <div class="sidebar-container">
+    
+      <div class="sidebar-profile">
+        <a href="/#about">
+          <img class="sidebar-profile-picture" src="https://www.gravatar.com/avatar/d09dc2d7aa5c467519e8af89f7b3d94c?s=110" alt="作者的图片" />
+        </a>
+        <h4 class="sidebar-profile-name">SuJiankang</h4>
+        
+          <h5 class="sidebar-profile-bio"><strong>自古英雄出炼狱 从来富贵入凡尘</strong></h5>
+        
+      </div>
+    
+    <ul class="sidebar-buttons">
+      
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="/">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-home"></i>
+      
+      <span class="sidebar-button-desc">首页</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="/categories">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-bookmark"></i>
+      
+      <span class="sidebar-button-desc">分类</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="/tags">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-tags"></i>
+      
+      <span class="sidebar-button-desc">标签</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="/archives">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-archive"></i>
+      
+      <span class="sidebar-button-desc">归档</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="/#about">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-question"></i>
+      
+      <span class="sidebar-button-desc">关于</span>
+    </a>
+  </li>
+
+
+    </ul>
+    <ul class="sidebar-buttons">
+      
+
+    </ul>
+    <ul class="sidebar-buttons">
+      
+
+    </ul>
+  </div>
+</nav>
+
+      
+  <div class="post-header-cover
+              text-center
+              "
+       style="background-image:url('//d1u9biwaxjngwg.cloudfront.net/cover-image-showcase/city.jpg')"
+       data-behavior="4">
+    
+  </div>
+
+
+      <div id="main" data-behavior="4"
+        class="hasCover
+               hasCoverMetaOut
+               ">
+        <article class="post" itemscope itemType="http://schema.org/BlogPosting">
+          
+          
+            <div class="post-header main-content-wrap text-center">
+  
+    <h1 class="post-title" itemprop="headline">
+      Ansible-PlayBook
+    </h1>
+  
+  
+  <div class="postShorten-meta post-meta">
+    
+      <time itemprop="datePublished" datetime="2019-02-22T00:00:00Z">
+        
+  二月 22, 2019
+
+      </time>
+    
+    
+  
+  
+    <span>发布在</span>
+    
+      <a class="category-link" href="/categories/linux">Linux</a>, 
+    
+      <a class="category-link" href="/categories/features">features</a>
+    
+  
+
+  </div>
+
+</div>
+          
+          <div class="post-content markdown" itemprop="articleBody">
+            <div class="main-content-wrap">
+              
+
+<h1 id="ansible-playbook">ansible-playbook</h1>
+
+<blockquote>
+<p>在之前的<code>ansible</code>使用中，我们都是通过命令行的形式实现对应远程主机的响应管理</p>
+
+<p>但这样的工作方式功能上来说还是有一定的局限性，并且维护并不方便，引入<code>playbook</code>可以更加方便我们对于功能的编写维护，并且具有良好的灵活性</p>
+
+<p><code>playbook</code>也可以理解为命令行功能的一个合集脚本，用来编写更加复杂的业务</p>
+</blockquote>
+
+<h2 id="yaml语法">yaml语法</h2>
+
+<blockquote>
+<p><code>Yaml</code>为通用数据串行化格式语法，简洁而强大</p>
+
+<p><code>ansible</code>中的配置文件就采用了<code>Yaml</code>格式语法存在，以下就是对<code>Yaml</code>语法的介绍</p>
+</blockquote>
+
+<ul>
+<li><code>yaml</code>基本语法规则如下
+
+<ol>
+<li>大小写敏感</li>
+<li>使用缩进表示层级关系</li>
+<li>缩进的空格数目不唯一，只要相同层级元素左侧对齐即可</li>
+<li><code>#</code>号表示注释</li>
+</ol></li>
+<li><code>yaml</code>语法支持的数据结构有三种：
+
+<ol>
+<li>键值对：相当于<code>hash</code>表映射关系，字典</li>
+<li>序列：相当于数组或列表</li>
+<li>纯量（标量）：单独的值，无法继续拆分，比如字符串、整数、浮点数、<code>Null</code>、布尔值（<code>true</code>、<code>false</code>）</li>
+</ol></li>
+</ul>
+
+<h3 id="字符串">字符串</h3>
+
+<ul>
+<li>字符串定义时，默认可以不使用引号标注</li>
+</ul>
+
+<pre><code class="language-python">  str_1: abc
+  {'str_1': 'abc',} # 对应Python中数据类型
+</code></pre>
+
+<ul>
+<li>如字符串中出现特殊字符或包含空格，需要使用引号标注</li>
+</ul>
+
+<pre><code class="language-python">  str_2: 'abc: bbb'
+  {'str_2': 'abc: bbb'} # 对应Python中数据类型
+</code></pre>
+
+<ul>
+<li>双引号不会对字符串中特殊字符进行转义</li>
+</ul>
+
+<pre><code class="language-python">  str_3: 'abc: \n bbb'
+  str_4: &quot;abc: \n bbb&quot;
+  {'abc: \\n bbb', 'str_4': 'abc: \n bbb'} # 对应Python中数据类型
+</code></pre>
+
+<ul>
+<li>单引号字符串还有引号，需要使用两个单引号进行转义</li>
+</ul>
+
+<pre><code class="language-python">  `str_5: 'a''b'{'str_5': &quot;a'b&quot;} # 对应Python中数据类型`
+</code></pre>
+
+<ul>
+<li>当字符串需要换行时，从第二行开始的下面几行，需要有对齐缩进，换行会被解释为空格，其余缩进前空格会忽略</li>
+</ul>
+
+<pre><code class="language-python">  str_6: 'abc
+      aaa
+      bbb
+      ccc'
+  {'str_6': 'abc aaa bbb ccc'} # 对应Python中数据类型
+</code></pre>
+
+<ul>
+<li>多行字符串可以使用 <code>|</code>保留换行符形成段落，或使用<code>&gt;</code>将换行符替换为空格</li>
+</ul>
+
+<pre><code class="language-python">  str_7: &gt;
+    bbb
+    aaa
+  
+  str_8: |
+    bbb
+    aaa
+  {'str_7': 'bbb aaa\n', 'str_8': 'bbb\naaa\n'} # 对应Python中数据类型
+</code></pre>
+
+<ul>
+<li><code>+</code>表示保留字符串末位的换行，<code>-</code>表示删除字符串末位的换行</li>
+</ul>
+
+<pre><code class="language-python">  `str_9: |+  aaabbbstr_10: |-  aaabbb'str_9': 'aaabbb\n', 'str_10': 'aaabbb'} # 对应Python中数据类型`
+</code></pre>
+
+<h3 id="键值对">键值对</h3>
+
+<ul>
+<li>Yaml中的键值对数据通过冒号定义，冒号后的数据与冒号之间存在一个空格</li>
+</ul>
+
+<pre><code class="language-python">  dict_1: a
+  dict_2: { 1 : a }
+  dict_3:
+    a: 1
+    b: 2
+  {'dict_1': 'a', 'dict_2': {1: 'a'}, 'dict_3': {'a': 1, 'b': 2}} # 对应Python中数据类型
+</code></pre>
+
+<h3 id="序列">序列</h3>
+
+<pre><code class="language-python">- list_1
+- list_2
+-
+ - a_1
+ - a_2
+['list_1', 'list_2', ['a_1', 'a_2']] # 对应Python中数据类型
+</code></pre>
+
+<h3 id="数据嵌套使用">数据嵌套使用</h3>
+
+<pre><code class="language-python">`- test_1:  - a  - b- test_2:    var_1: true    var_2: 0.2[{'test_1': ['a', 'b']}, {'test_2': {'var_1': True, 'var_2': 0.2}}] # 对应Python中数据类型`
+</code></pre>
+
+<h2 id="playbook">playbook</h2>
+
+<blockquote>
+<p><code>playbook</code>的编写使用<code>yaml</code>语法规则，先来看一下最简单的<code>playbook</code></p>
+
+<p>其实 playbook 就是一个 yaml 文件，我们在文件里写入很多执行命令，可以执行批量命令</p>
+</blockquote>
+
+<ul>
+<li>为了方便使用，创建软连接</li>
+</ul>
+
+<pre><code class="language-python">  ln -s /usr/local/python3/bin/ansible-playbook /usr/bin/ansible-playbook
+</code></pre>
+
+<ul>
+<li>先写一个简单的 yaml 命令文件</li>
+</ul>
+
+<blockquote>
+<p>需要在 etc 下的 ansible 配置文件夹内写 yaml 文件</p>
+
+<p>执行 yaml 文件对远程服务器创建一个 py文件</p>
+</blockquote>
+
+<pre><code class="language-python">  ---
+  - hosts: xinxin           # 指定服务器端口，在 hosts配置好了的
+    remote_user: root     
+  # tasks为任务列表，playbook将按照从上到下的定义顺序执行其中的模块对应的操作，name属性为一个字符串用以标示当前任务的介绍，第一个任务将使用yum模块安装apache服务，第二个任务使用ansible模块service，使httpd服务启动
+    tasks:
+      - name: Add File      # 为操作起名
+        shell: touch hahaha.py chdir=/home/     # 命令语句
+  
+      - name: Show File
+        shell: ls chdir=/home/
+      
+      # 可以一直写别的命令，看自己需要了
+    # - name: Yum Install Apache
+      #     yum: name=httpd state=installed
+      # - name: Start Apache Server
+      #     service: name=httpd state=started
+</code></pre>
+
+<ul>
+<li><p>编写好文件脚步执行即可</p>
+
+<pre><code class="language-python">ansible-playbook /etc/ansible/demo.yml
+</code></pre>
+
+<h2 id="包含">包含</h2>
+
+<blockquote>
+<p>当遇到较为复杂的情况时，单独的<code>playbook</code>可能无法应对业务需求，那么可能需要编写多个<code>playbook</code></p>
+
+<p>这时，如果在<code>playbook</code>中的<code>handlers</code>或<code>tasks</code>可能在多个<code>playbook</code>中重复使用，就可以通过<code>ansible</code>所提供的<code>include</code>功能，将复用的部分单独写成一个文件，在需要的地方<code>include</code>包含进来即可</p>
+
+<p>就是把我会创建一个文件夹将 tasks 的每一个任务放进一个 tsaks.yml 文件里，用 include 引入进一个inckude_test.yml文件里，执行 inckude_test.yml 即可，这样做就可以将任务以组件形式引入，方便管理，提高服用性</p>
+</blockquote>
+
+<p><img src="/images/work.png" alt="" /></p>
+
+<pre><code class="language-python"># add_file.yml      这里就不需要写 tasks 了
+- name: Add File
+shell: touch wangxiner.py chdir=/home/
+</code></pre></li>
+</ul>
+
+<pre><code class="language-python">  # show_file.yml
+  - name: Show File
+    shell: ls chdir=/home/
+</code></pre>
+
+<pre><code class="language-python">  # 将任务引入
+  ---
+  - hosts: xinxin      # 指定 主机
+    remote_user: root
+    tasks:
+      - include: add_file.yml      # 指明任务
+      - include: show_file.yml
+</code></pre>
+
+<ul>
+<li><p>执行的话需要指定哪个文件夹下的 yml 文件</p>
+
+<pre><code class="language-python">ansible-playbook /etc/ansible/work/include_text.yml
+</code></pre>
+
+<ul>
+<li><code>include</code>包含的其他<code>playbook</code>支持模板变量，可以通过定义<code>vars</code>变量覆盖，或者像这样</li>
+</ul>
+
+<pre><code class="language-python">---
+- name: Yum Install Nginx
+    yum: name={{ server_name }} state=installed
+</code></pre></li>
+
+<li><p><code>playbook</code>文件</p>
+
+<p>```python</p>
+
+<ul>
+<li><p>hosts: all
+tasks:</p>
+
+<ul>
+<li><p>include: tasks.yml server_name=nginx     # server_name:传参</p>
+
+<pre><code>
+  
+
+## 角色
+
+- 当以后任务文件越来越多，都在一个目录下很混乱
+- 角色就是一个完整的目录结构，用来做一件成体系的事情，一个角色只做一件事情
+
+&gt; 除去通过`include`功能将不同的任务分别写入不同的文件，然后按需`include`包含进来，在`ansible`中还有一种标准规范叫做`role`角色
+&gt;
+&gt; 通过不同级别的层级目录和文件来对变量、任务、配置模板等进行拆分管理，提高扩展性和可维护性
+
+  
+
+- 一般来说，一个`role`角色定义目录结构如下
+
+```python
+role_name/  # 角色名目录，playbook调用时需要
+file/   # 存放copy或script等模块调用文件
+tasks/  # 存放各种task任务，需要包含一个main.yml
+handlers/   # 存放各种handlers任务，需要包含一个main.yml
+vars/   # 存放定义好的变量，需要包含一个main.yml
+templates/  # 存放需要使用到的配置模板
+meta/   # 当前角色的特殊设定及其依赖，需要包含一个main.yml
+</code></pre></li>
+</ul></li>
+</ul></li>
+
+<li><p>以 Apache 为例</p>
+
+<blockquote>
+<p>在 ansible 文件夹下创建一个角色文件夹叫  apache，在其文件夹下创建 一下文件夹</p>
+</blockquote>
+
+<ul>
+<li>示例目录结构</li>
+</ul>
+
+<p><img src="/images/role.png" alt="" /></p></li>
+
+<li><p>任务<code>tasks</code>目录下<code>main</code>文件内容</p>
+
+<p>```python</p>
+
+<h1 id="tasks-main-yml">tasks/main.yml</h1>
+
+<h1 id="这里存放的是执行的任务">这里存放的是执行的任务</h1>
+
+<ul>
+<li>name: Installed Apache
+yum: name=httpd state=installed</li>
+
+<li><p>name: Write Config</p>
+
+<h1 id="将httpd-j2文件替换后面-apache-自身的配置文件-当最终运行完命令后你可以进去看它本身的配置文件-里的数据是你修改过的">将httpd.j2文件替换后面 apache 自身的配置文件,当最终运行完命令后你可以进去看它本身的配置文件    里的数据是你修改过的</h1>
+
+<p>template: src=httpd.j2 dest=/etc/httpd/conf/httpd.conf<br />
+notify: Restart service    # notify:指向的是 handlers/main.yml的任务</p>
+
+<pre><code>
+- `handlers`目录下`main`文件内容
+
+```python
+# handlers/main.yml
+# 将重新启动的任务单独放在这个文件里，因为 handlers 会查看当你的任务发生改变时它才会执行，
+# 任务或配置没有更改是不需要重新启动的
+- name: Restart service
+service: name=httpd state=restarted
+</code></pre></li>
+</ul></li>
+
+<li><p><code>templates</code>下配置模板</p>
+
+<pre><code class="language-python"># templates/httpd.j2
+# 将 apache 本身的配置文件复制出来粘贴到这个文件里
+#上面内容太多省略，只保留模板变量部分
+Listen {{ listen_port }}
+</code></pre>
+
+<ul>
+<li>变量<code>vars</code>目录下<code>main</code>文件</li>
+</ul>
+
+<pre><code class="language-python"># vars/main.yml
+# 这个文件定义变量，templates/httpd.j2文件接收变量
+listen_port: 8000
+</code></pre></li>
+
+<li><p>在 ansible  文件夹下创建一个 yml文件随便起名叫 apache.yml</p>
+
+<h2 id="python">```python</h2>
+
+<ul>
+<li><p>hosts: myself
+remote_user: root
+roles:  # 指定执行的角色文件夹，角色会自己根据自己的目录结构去执行</p>
+
+<ul>
+<li><p>apache</p>
+
+<pre><code>
+- 执行任务
+
+```python
+# 指定执行哪个目录下的文件
+ansible-playbook /etc/ansible/apache.yml
+</code></pre></li>
+</ul></li>
+</ul></li>
+
+<li><p>执行成功如下</p>
+
+<p><img src="/images/apache_update.png" alt="" /></p></li>
+</ul>
+
+              
+            </div>
+          </div>
+          <div id="post-footer" class="post-footer main-content-wrap">
+            
+              
+                
+                
+                  <div class="post-footer-tags">
+                    <span class="text-color-light text-small">标签</span><br/>
+                    
+  <a class="tag tag--primary tag--small" href="/tags/ansible/">Ansible</a>
+
+                  </div>
+                
+              
+            
+            <div class="post-actions-wrap">
+  
+      <nav >
+        <ul class="post-actions post-action-nav">
+          
+            <li class="post-action">
+              
+                <a class="post-action-btn btn btn--default tooltip--top" href="/2019/03/websocket/" data-tooltip="WebSocket">
+              
+                  <i class="fa fa-angle-left"></i>
+                  <span class="hide-xs hide-sm text-small icon-ml">下一篇</span>
+                </a>
+            </li>
+            <li class="post-action">
+              
+                <a class="post-action-btn btn btn--default tooltip--top" href="/2019/02/ansible%E6%89%B9%E9%87%8F%E8%BF%90%E7%BB%B4/" data-tooltip="Ansible批量运维">
+              
+                  <span class="hide-xs hide-sm text-small icon-mr">上一篇</span>
+                  <i class="fa fa-angle-right"></i>
+                </a>
+            </li>
+          
+        </ul>
+      </nav>
+    <ul class="post-actions post-action-share" >
+      
+        <li class="post-action hide-lg hide-md hide-sm">
+          <a class="post-action-btn btn btn--default btn-open-shareoptions" href="#btn-open-shareoptions">
+            <i class="fa fa-share-alt"></i>
+          </a>
+        </li>
+        
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://www.facebook.com/sharer/sharer.php?u=/2019/02/ansible-playbook/">
+              <i class="fa fa-facebook-official"></i>
+            </a>
+          </li>
+        
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://twitter.com/intent/tweet?text=/2019/02/ansible-playbook/">
+              <i class="fa fa-twitter"></i>
+            </a>
+          </li>
+        
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://plus.google.com/share?url=/2019/02/ansible-playbook/">
+              <i class="fa fa-google-plus"></i>
+            </a>
+          </li>
+        
+      
+      
+        <li class="post-action">
+          <a class="post-action-btn btn btn--default" href="#disqus_thread">
+            <i class="fa fa-comment-o"></i>
+          </a>
+        </li>
+      
+      <li class="post-action">
+        
+          <a class="post-action-btn btn btn--default" href="#">
+        
+          <i class="fa fa-list"></i>
+        </a>
+      </li>
+    </ul>
+  
+</div>
+
+            
+              
+                <div id="disqus_thread">
+  <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+              
+            
+          </div>
+        </article>
+        <footer id="footer" class="main-content-wrap">
+  <span class="copyrights">
+    &copy; 2019 SuJiankang. All Rights Reserved
+  </span>
+</footer>
+
+      </div>
+      <div id="bottom-bar" class="post-bottom-bar" data-behavior="4">
+        <div class="post-actions-wrap">
+  
+      <nav >
+        <ul class="post-actions post-action-nav">
+          
+            <li class="post-action">
+              
+                <a class="post-action-btn btn btn--default tooltip--top" href="/2019/03/websocket/" data-tooltip="WebSocket">
+              
+                  <i class="fa fa-angle-left"></i>
+                  <span class="hide-xs hide-sm text-small icon-ml">下一篇</span>
+                </a>
+            </li>
+            <li class="post-action">
+              
+                <a class="post-action-btn btn btn--default tooltip--top" href="/2019/02/ansible%E6%89%B9%E9%87%8F%E8%BF%90%E7%BB%B4/" data-tooltip="Ansible批量运维">
+              
+                  <span class="hide-xs hide-sm text-small icon-mr">上一篇</span>
+                  <i class="fa fa-angle-right"></i>
+                </a>
+            </li>
+          
+        </ul>
+      </nav>
+    <ul class="post-actions post-action-share" >
+      
+        <li class="post-action hide-lg hide-md hide-sm">
+          <a class="post-action-btn btn btn--default btn-open-shareoptions" href="#btn-open-shareoptions">
+            <i class="fa fa-share-alt"></i>
+          </a>
+        </li>
+        
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://www.facebook.com/sharer/sharer.php?u=/2019/02/ansible-playbook/">
+              <i class="fa fa-facebook-official"></i>
+            </a>
+          </li>
+        
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://twitter.com/intent/tweet?text=/2019/02/ansible-playbook/">
+              <i class="fa fa-twitter"></i>
+            </a>
+          </li>
+        
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://plus.google.com/share?url=/2019/02/ansible-playbook/">
+              <i class="fa fa-google-plus"></i>
+            </a>
+          </li>
+        
+      
+      
+        <li class="post-action">
+          <a class="post-action-btn btn btn--default" href="#disqus_thread">
+            <i class="fa fa-comment-o"></i>
+          </a>
+        </li>
+      
+      <li class="post-action">
+        
+          <a class="post-action-btn btn btn--default" href="#">
+        
+          <i class="fa fa-list"></i>
+        </a>
+      </li>
+    </ul>
+  
+</div>
+
+      </div>
+      <div id="share-options-bar" class="share-options-bar" data-behavior="4">
+  <i id="btn-close-shareoptions" class="fa fa-close"></i>
+  <ul class="share-options">
+    
+      <li class="share-option">
+        <a class="share-option-btn" target="new" href="https://www.facebook.com/sharer/sharer.php?u=%2F2019%2F02%2Fansible-playbook%2F">
+          <i class="fa fa-facebook-official"></i><span>分享到 Facebook</span>
+        </a>
+      </li>
+    
+      <li class="share-option">
+        <a class="share-option-btn" target="new" href="https://twitter.com/intent/tweet?text=%2F2019%2F02%2Fansible-playbook%2F">
+          <i class="fa fa-twitter"></i><span>分享到 Twitter</span>
+        </a>
+      </li>
+    
+      <li class="share-option">
+        <a class="share-option-btn" target="new" href="https://plus.google.com/share?url=%2F2019%2F02%2Fansible-playbook%2F">
+          <i class="fa fa-google-plus"></i><span>分享到 Google&#43;</span>
+        </a>
+      </li>
+    
+  </ul>
+</div>
+<div id="share-options-mask" class="share-options-mask"></div>
+    </div>
+    
+    <div id="about">
+  <div id="about-card">
+    <div id="about-btn-close">
+      <i class="fa fa-remove"></i>
+    </div>
+    
+      <img id="about-card-picture" src="https://www.gravatar.com/avatar/d09dc2d7aa5c467519e8af89f7b3d94c?s=110" alt="作者的图片" />
+    
+    <h4 id="about-card-name">SuJiankang</h4>
+    
+      <div id="about-card-bio"><strong>自古英雄出炼狱 从来富贵入凡尘</strong></div>
+    
+    
+      <div id="about-card-job">
+        <i class="fa fa-briefcase"></i>
+        <br/>
+        Your job title
+      </div>
+    
+    
+      <div id="about-card-location">
+        <i class="fa fa-map-marker"></i>
+        <br/>
+        France
+      </div>
+    
+  </div>
+</div>
+
+    
+
+    
+  
+    
+      <div id="cover" style="background-image:url('/images/cover.jpg');"></div>
+    
+  
+
+
+    
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.4/jquery.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js" integrity="sha256-/BfiIkHlHoVihZdc6TFuj7MmJ0TWcWsMXkeDFwhi0zw=" crossorigin="anonymous"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.7/js/jquery.fancybox.min.js" integrity="sha256-GEAnjcTqVP+vBp3SSc8bEDQqvWAZMiHyUSIorrWwH50=" crossorigin="anonymous"></script>
+
+
+<script src="/js/script-pcw6v3xilnxydl1vddzazdverrnn9ctynvnxgwho987mfyqkuylcb1nlt.min.js"></script>
+
+
+<script lang="javascript">
+window.onload = updateMinWidth;
+window.onresize = updateMinWidth;
+document.getElementById("sidebar").addEventListener("transitionend", updateMinWidth);
+function updateMinWidth() {
+  var sidebar = document.getElementById("sidebar");
+  var main = document.getElementById("main");
+  main.style.minWidth = "";
+  var w1 = getComputedStyle(main).getPropertyValue("min-width");
+  var w2 = getComputedStyle(sidebar).getPropertyValue("width");
+  var w3 = getComputedStyle(sidebar).getPropertyValue("left");
+  main.style.minWidth = `calc(${w1} - ${w2} - ${w3})`;
+}
+</script>
+
+<script>
+$(document).ready(function() {
+  hljs.configure({ classPrefix: '', useBR: false });
+  $('pre.code-highlight > code, pre > code').each(function(i, block) {
+    if (!$(this).hasClass('codeblock')) {
+      $(this).addClass('codeblock');
+    }
+    hljs.highlightBlock(block);
+  });
+});
+</script>
+
+
+  
+    
+      <script>
+        var disqus_config = function () {
+          this.page.url = '\/2019\/02\/ansible-playbook\/';
+          
+            this.page.identifier = '\/2019\/02\/ansible-playbook\/'
+          
+        };
+        (function() {
+          
+          
+          if (window.location.hostname == "localhost") {
+            return;
+          }
+          var d = document, s = d.createElement('script');
+          var disqus_shortname = 'hugo-tranquilpeak-theme';
+          s.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+
+          s.setAttribute('data-timestamp', +new Date());
+          (d.head || d.body).appendChild(s);
+        })();
+      </script>
+    
+  
+
+
+
+
+    
+  </body>
+</html>
+
